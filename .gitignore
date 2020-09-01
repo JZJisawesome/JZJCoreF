@@ -1,0 +1,15 @@
+#unused/awful quartus stuff
+src/simulation
+*.bak
+src/.qsys_edit
+
+#Don't need to be distributed because they are easily generated from other files
+*.vcd
+src/output_files
+src/incremental_db
+src/db
+src/*.qws
+*.o
+
+#Other things
+*.kate-swp
