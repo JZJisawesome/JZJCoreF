@@ -43,10 +43,8 @@ module JZJCoreF
 
 //RegisterFile
 //Reading
-logic [4:0] rs1Address, rs2Address;
 logic [31:0] rs1, rs2;
 //Writing
-logic [4:0] rdAddress;
 logic [31:0] rd;
 logic writeEnable;
 
@@ -55,9 +53,8 @@ logic writeEnable;
 //InstructionDecoder
 logic [31:0] instruction;
 DecodedInstruction decodedInstruction;
-assign rs1Address = decodedInstruction.rs1Address;
-assign rs2Address = decodedInstruction.rs2Address;
-assign rdAddress = decodedInstruction.rdAddress;
+DecodedAddressing decodedAddressing;
+DecodedImmediates decodedImmediates;
 
 /* Modules */
 
