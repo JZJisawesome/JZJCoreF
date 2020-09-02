@@ -18,7 +18,7 @@ module InstructionDecoder
 	output DecodedAddressing decodedAddressing,//To register file
 	
 	//Instruction Encoding
-	output [6:0] opcode,
+	output [6:0] opcode,//For JZJCoreF, opcode is strictly only to be used by the control logic
 	output [2:0] funct3,
 	output [6:0] funct7,
 	

@@ -1,7 +1,5 @@
 module ALU
 (
-	input aluOutputEnable,//If 0, force ALU output to '0 so that something else can write to registers
-
 	//Determine ALU function
 	input [2:0] funct3,
 	input [6:0] funct7,
@@ -15,23 +13,18 @@ module ALU
 	//Output
 	output [31:0] aluOutput
 );
-logic [31:0] x;
-logic [31:0] y;
-logic [31:0] result;
-
-assign aluOutput = aluOutputEnable ? result : 32'h00000000;
+logic [31:0] operand2;
 
 /* Input Multiplexing */
-assign x = rs1;
 
 always_comb
 begin
 	if (opImm)
 	begin
-		y = immediateI;
+		operand2 = immediateI;
 	end
 	else
-		y = rs2;
+		operand2 = rs2;
 end
 
 /* ALU Functions */
@@ -41,17 +34,17 @@ begin
 		3'b000://add/sub/addi
 		begin
 			if (opImm)//There is no subi
-				result = x + y;//addi
+				aluOutput = rs1 + operand2;//addi
 			else
-				result = funct7[5] ? x - y : x + y;//add/sub
+				aluOutput = funct7[5] ? rs1 - operand2 : rs1 + operand2;//add/sub
 		end
-		3'b001: result = x << y[4:0];//sll/slli
-		3'b010: result = ($signed(x) < $signed(y)) ? 32'h00000001 : 32'h00000000;//slt/slti
-		3'b011: result = (x < y) ? 32'h00000001 : 32'h00000000;//sltu/sltiu
-		3'b100: result = x ^ y;//xor/xori
-		3'b101: result = funct7[5] ? x >>> y[4:0] : x >> y[4:0];//srl/sra/srli/srai
-		3'b110: result = x | y;//or/ori
-		3'b111: result = x & y;//and/andi
+		3'b001: aluOutput = rs1 << operand2[4:0];//sll/slli
+		3'b010: aluOutput = ($signed(rs1) < $signed(operand2)) ? 32'h00000001 : 32'h00000000;//slt/slti
+		3'b011: aluOutput = (rs1 < operand2) ? 32'h00000001 : 32'h00000000;//sltu/sltiu
+		3'b100: aluOutput = rs1 ^ operand2;//xor/xori
+		3'b101: aluOutput = funct7[5] ? rs1 >>> operand2[4:0] : rs1 >> operand2[4:0];//srl/sra/srli/srai
+		3'b110: aluOutput = rs1 | operand2;//or/ori
+		3'b111: aluOutput = rs1 & operand2;//and/andi
 	endcase
 end
 

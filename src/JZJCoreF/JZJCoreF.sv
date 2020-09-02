@@ -45,10 +45,11 @@ module JZJCoreF
 //Reading
 logic [31:0] rs1, rs2;
 //Writing
-wor [31:0] rd;//If a module is not writing to rd, then control should set its output to '0 (yes I know I should be using a priority encoder but this is nicer readability wise; I have to test the performance at some point)
+logic [31:0] rd;//If a module is not writing to rd, then control should set its output to '0 (yes I know I should be using a priority encoder but this is nicer readability wise; I have to test the performance at some point)
 logic rdWriteEnable;
 
-//Memory
+//MemoryController
+logic [31:0] memoryOutput;
 
 //InstructionDecoder
 logic [31:0] instruction;
@@ -62,17 +63,29 @@ logic [31:0] immediateB;
 logic [31:0] immediateU;
 logic [31:0] immediateJ;
 
-//ALU
+//RDInputChooser
+logic memoryOutputEnable;
 logic aluOutputEnable;
+logic immediateFormerOutputEnable;
+logic branchALUOutputEnable;
+
+//ALU
 logic opImm;
 logic [31:0] aluOutput;
-assign rd = aluOutput;
+
+//ImmediateFormer
+logic [31:0] immediateFormerOutput;
+
+//BranchALU
+logic [31:0] branchALUOutput;
 
 /* Modules */
 
 RegisterFile registerFile(.*);
 
 InstructionDecoder instructionDecoder(.*);
+
+RDInputChooser rdInputChooser(.*);
 
 ALU alu(.*);
 
