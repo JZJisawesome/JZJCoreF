@@ -55,8 +55,6 @@ logic rdWriteEnable;
 logic [31:0] memoryOutput;
 
 //InstructionDecoder
-logic [31:0] instruction;
-logic [6:0] opcode;
 logic [2:0] funct3;
 logic [6:0] funct7;
 logic [31:0] immediateI;
@@ -71,16 +69,25 @@ logic aluOutputEnable;
 logic immediateFormerOutputEnable;
 logic branchALUOutputEnable;
 
+//ProgramCounter
+logic [31:0] programCounterInput;
+
 //ALU
 logic opImm;
 logic [31:0] aluOutput;
 
 //ImmediateFormer
-immediateFormerMode_t immediateFormerMode;
+ImmediateFormerMode_t immediateFormerMode;
 logic [31:0] immediateFormerOutput;
 
 //BranchALU
+BranchALUMode_t branchALUMode;
 logic [31:0] branchALUOutput;
+
+//Control Logic
+logic [31:0] instruction;
+logic [31:0] pcOfInstruction;
+logic [6:0] opcode;
 
 /* Modules */
 
@@ -91,5 +98,9 @@ InstructionDecoder instructionDecoder(.*);
 RDInputChooser rdInputChooser(.*);
 
 ALU alu(.*);
+
+ImmediateFormer immediateFormer(.*);
+
+BranchALU branchALU(.*);
 
 endmodule

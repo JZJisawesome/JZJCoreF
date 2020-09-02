@@ -16,6 +16,8 @@ module RDInputChooser
 	//Output to register file in (rd)
 	output [31:0] rd
 );
+logic branchALUActualOutputEnable;
+
 //Switched versions of module data are 32'h00000000 if their corresponding enable line is disabled
 logic [31:0] memoryOutputSwitched;
 logic [31:0] aluOutputSwitched;
@@ -27,13 +29,17 @@ logic [31:0] branchALUOutputSwitched;
 assign rd = memoryOutputSwitched | aluOutputSwitched | immediateFormerOutputSwitched | branchALUOutputSwitched;
 
 /* Switching Logic */
+
+//Allows other modules to write to rd if the branchALU is just incrementing the pc
+assign branchALUActualOutputEnable = branchALUOutputEnable & ~memoryOutputEnable & ~aluOutputEnable & ~immediateFormerOutputEnable;
+
 //Switched versions of module data are 32'h00000000 if their corresponding enable line is disabled
 always_comb
 begin
 	memoryOutputSwitched = memoryOutput & {{32{memoryOutputEnable}}};
 	aluOutputSwitched = aluOutput & {{32{aluOutputEnable}}};
 	immediateFormerOutputSwitched = immediateFormerOutput & {{32{immediateFormerOutputEnable}}};
-	branchALUOutputSwitched = branchALUOutput & {{32{branchALUOutputEnable}}};
+	branchALUOutputSwitched = branchALUOutput & {{32{branchALUActualOutputEnable}}};
 end
 
 endmodule

@@ -35,7 +35,7 @@ assign immediateI = extend12To32(instruction[31:20]);
 assign immediateS = extend12To32({instruction[31:25], instruction[11:7]});
 assign immediateB = {{19{instruction[31]}}, instruction[31], instruction[7], instruction[30:25], instruction[11:8], 1'b0};
 assign immediateU = {instruction[31:12], 12'h000};
-assign immediateJ = {{19{instruction[31]}}, instruction[31], instruction[19:12], instruction[20], instruction[30:21], 1'b0};
+assign immediateJ = {{11{instruction[31]}}, instruction[31], instruction[19:12], instruction[20], instruction[30:21], 1'b0};
 
 function automatic logic [31:0] extend12To32(input [11:0] data);
 begin
