@@ -1,14 +1,3 @@
-typedef struct//DecodedInstruction
-{
-	//Note: Modules must be smart enough to decode the opcode and 
-	//know which of these members is valid at a given instant
-	
-	//Instruction Encoding
-	logic [6:0] opcode;
-	logic [2:0] funct3;
-	logic [6:0] funct7;
-} DecodedInstruction;
-
 typedef struct//DecodedAddressing
 {
 	//Note: Modules must be smart enough to decode the opcode and 
@@ -23,11 +12,16 @@ typedef struct//DecodedAddressing
 module InstructionDecoder
 (
 	input [31:0] instruction,
-	output DecodedInstruction decodedInstruction,//To control logic
-	output DecodedAddressing decodedAddressing,//To register file
-	
+
 	//Note: Modules must be smart enough to decode the opcode and 
 	//know which of these members is valid at a given instant
+	output DecodedAddressing decodedAddressing,//To register file
+	
+	//Instruction Encoding
+	output [6:0] opcode,
+	output [2:0] funct3,
+	output [6:0] funct7,
+	
 	//Immediates (preprocessed)
 	output [31:0] immediateI,
 	output [31:0] immediateS,
@@ -35,15 +29,15 @@ module InstructionDecoder
 	output [31:0] immediateU,
 	output [31:0] immediateJ
 );
-//Instruction Encoding
-assign decodedInstruction.opcode = instruction[6:0];
-assign decodedInstruction.funct3 = instruction[14:12];
-assign decodedInstruction.funct7 = instruction[31:25];
-
 //Addressing
 assign decodedAddressing.rs1Address = instruction[19:15];
 assign decodedAddressing.rs2Address = instruction[24:20];
 assign decodedAddressing.rdAddress = instruction[11:7];
+
+//Instruction Encoding
+assign opcode = instruction[6:0];
+assign funct3 = instruction[14:12];
+assign funct7 = instruction[31:25];
 
 //Immediates (preprocessed)
 assign immediateI = extend12To32(instruction[31:20]);
