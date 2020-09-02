@@ -55,9 +55,14 @@ logic writeEnable;
 //InstructionDecoder
 logic [31:0] instruction;
 DecodedInstruction decodedInstruction;
+assign rs1Address = decodedInstruction.rs1Address;
+assign rs2Address = decodedInstruction.rs2Address;
+assign rdAddress = decodedInstruction.rdAddress;
 
 /* Modules */
 
 RegisterFile registerFile(.*);
+
+InstructionDecoder instructionDecoder(.*);
 
 endmodule

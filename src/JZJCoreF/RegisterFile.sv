@@ -12,10 +12,9 @@ module RegisterFile
 	input [31:0] rd,
 	input writeEnable
 );
-/* Registers */
 reg [31:0] registerFile [32];
 
-/* Read Port Multiplexing */
+//Read Port Multiplexing
 assign rs1 = registerFile[rs1Address];
 assign rs2 = registerFile[rs2Address];
 assign register31Output = registerFile[31];
