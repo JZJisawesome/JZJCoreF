@@ -1,22 +1,27 @@
 import JZJCoreFTypes::MemoryMode_t;
 
 module MemoryController//2.5 port memory: 1 read port for instruction fetching, 1 read/write port for data loads/stores
+#(
+	parameter INITIAL_MEM_CONTENTS = "initialRam.mem",
+	parameter RAM_A_WIDTH = 12
+)
 (
 	input clock, reset,
 	
-	//Memory Mode
-	input MemoryMode_t memoryMode,
+	//Memory Mode and Control
+	input MemoryMode_t memoryMode,//Note: Use LOAD as nop
+	input [2:0] funct3,
 	
 	//Addressing
 	input [31:0] rs1,
 	input [31:0] immediateI,
 	input [31:0] immediateS,
 	
-	//Reading
+	//Memory Loads
 	output [31:0] memoryOutput,//Will only update if memoryMode is LOAD
 	
-	//Memory Stores//Will only write if memoryMode is STORE; for half words and bytes the memoryMode must be STORE_PRELOAD for 1 cycle first, then STORE to actually write
-	//todo
+	//Memory Stores
+	input [31:0] rs2,//Will only write if memoryMode is STORE; for half words and bytes the memoryMode must be STORE_PRELOAD for 1 cycle first, then STORE to actually write
 	
 	//Instruction Fetching
 	input [31:0] pcOfInstruction,
@@ -55,5 +60,6 @@ module MemoryController//2.5 port memory: 1 read port for instruction fetching, 
 	//If feedback is desired, then inputs should be connected to their respective output register
 	//MAKE SURE INPUTS ARE SYNCHRONIZED IF THEY ARE FROM ANOTHER CLOCK DOMAIN
 );
+
 
 endmodule

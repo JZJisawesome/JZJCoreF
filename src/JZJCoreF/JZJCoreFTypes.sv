@@ -1,5 +1,6 @@
 package JZJCoreFTypes;
 	/* Enums */
+	typedef enum {MEMORY, ALU, IMMEDIATE_FORMER, BRANCH_ALU} RDSource_t;//Todo use this for RDInputChooser in the future
 	typedef enum {LUI, AUIPC} ImmediateFormerMode_t;
 	typedef enum {JAL, JALR, BRANCH, INCREMENT} BranchALUMode_t;
 	typedef enum {LOAD, STORE_PRELOAD, STORE} MemoryMode_t;

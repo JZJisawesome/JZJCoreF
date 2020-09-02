@@ -98,7 +98,7 @@ logic programCounterMisaligned;
 
 RegisterFile registerFile(.*);
 
-MemoryController memoryController(.*);
+MemoryController #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) memoryController(.*);
 
 InstructionDecoder instructionDecoder(.*);
 
