@@ -39,5 +39,25 @@ module JZJCoreF
 	//Output for legacy asembly test programs that output to register 31; for new software use memory mapped io instead
 	output [31:0] register31Output
 );
+/* Connections */
+
+//RegisterFile
+//Reading
+logic [4:0] rs1Address, rs2Address;
+logic [31:0] rs1, rs2;
+//Writing
+logic [4:0] rdAddress;
+logic [31:0] rd;
+logic writeEnable;
+
+//Memory
+
+//InstructionDecoder
+logic [31:0] instruction;
+DecodedInstruction decodedInstruction;
+
+/* Modules */
+
+RegisterFile registerFile(.*);
 
 endmodule

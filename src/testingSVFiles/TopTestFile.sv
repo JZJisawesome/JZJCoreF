@@ -52,15 +52,15 @@ localparam FILE = "memFiles/memorymappediowritetest.mem";
 
 //Full speed
 //JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest
-//(.clock(clock), .reset(reset), .register31Output(register31Output), .portEOutput(portEOutput), .portEInput(portEInput), .portBOutput(portBOutput));
+//(.clock, .reset, .register31Output, .portEOutput, .portEInput, .portBOutput);
 
 //Half speed
 //JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest
-//(.clock(clock25MHz), .reset(reset), .register31Output(register31Output), .portEOutput(portEOutput), .portEInput(portEInput), .portBOutput(portBOutput));
+//(.clock(clock25MHz), .reset, .register31Output, .portEOutput, .portEInput, .portBOutput);
 
 //Slow
 JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest
-(.clock(clock90Hz), .reset(reset), .register31Output(register31Output), .portEOutput(portEOutput), .portEInput(portEInput), .portBOutput(portBOutput));
+(.clock(clock90Hz), .reset, .register31Output(register31Output), .portEOutput(portEOutput), .portEInput(portEInput), .portBOutput(portBOutput));
 
 //7 segment display output
 multi7seg (.clock(clockPrescaler[17]), .data0(displayOutput[15:12]), .data1(displayOutput[11:8]), .data2(displayOutput[7:4]), .data3(displayOutput[3:0]), .segment(segment), .ground(digit));

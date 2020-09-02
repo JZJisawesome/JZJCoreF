@@ -1,16 +1,16 @@
 module RegisterFile
 (
-	input logic clock, reset,
+	input clock, reset,
 	
 	//Read Ports
-	input logic [4:0] rs1Address, rs2Address
-	output logic [31:0] rs1, rs2,
-	output logic [31:0] register31Output,
+	input [4:0] rs1Address, rs2Address,
+	output [31:0] rs1, rs2,
+	output [31:0] register31Output,
 	
 	//Write Interface
-	input logic [4:0] rdAddress,
-	input logic [31:0] rd,
-	input logic writeEnable
+	input [4:0] rdAddress,
+	input [31:0] rd,
+	input writeEnable
 );
 /* Registers */
 reg [31:0] registerFile [32];
@@ -28,7 +28,7 @@ begin
 	else if (clock)
 	begin
 		if (writeEnable && (rdAddress != 5'b00000))//x0 must always be 32'h00000000
-			registerFile <= rd;
+			registerFile[rdAddress] <= rd;
 	end
 end
 
@@ -44,5 +44,6 @@ begin
 	for (int i = 0; i < 32; ++i)
 		registerFile[i] <= 32'h00000000;
 end
+endtask
 
 endmodule
