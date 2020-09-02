@@ -1,4 +1,5 @@
 import JZJCoreFTypes::MemoryMode_t;
+import EndiannessFunctions::*;
 
 module MemoryController//2.5 port memory: 1 read port for instruction fetching, 1 read/write port for data loads/stores
 #(
@@ -91,10 +92,23 @@ assign offset = addressToAccess[1:0];
 
 /* Data Processing */
 
-/* Error Detection */
+/* Error Detection *///todo might move this to its own module//actually better idea; make this an internally defined + instantized module
+
+/* Sign Extension Functions */
+
+function automatic logic [31:0] extend16To32(input [15:0] data);
+begin
+	extend16To32 = {{16{data[15]}}, data[15:0]};
+end
+endfunction
+
+//todo more needed
 
 /* Modules */
+//Internal
 
-MemoryBackend #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) memoryBackend(.*);
+//External
+
+MemoryBackend #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) memoryBackend(.*);//todo move definition of MemoryBackend to inside this module; (maybe)
 
 endmodule
