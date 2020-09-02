@@ -5,7 +5,7 @@ module ALU
 	//Determine ALU function
 	input [2:0] funct3,
 	input [6:0] funct7,
-	input [6:0] opImm,//Instruction type is OP-IMM (so using immediateI instead of rs2)
+	input opImm,//Instruction type is OP-IMM (so using immediateI instead of rs2)
 	
 	//Operands
 	input [31:0] rs1,
@@ -28,10 +28,7 @@ always_comb
 begin
 	if (opImm)
 	begin
-		if (funct3 == 101)
-			y = immediateI[4:0];//Only looking at low 5 bits
-		else
-			y = immediateI;//Looking at the whole immediate value
+		y = immediateI;
 	end
 	else
 		y = rs2;
@@ -41,13 +38,20 @@ end
 always_comb
 begin
 	case (funct3)
-		3'b000://addi/add/sub
+		3'b000://add/sub/addi
 		begin
 			if (opImm)//There is no subi
 				result = x + y;//addi
 			else
 				result = funct7[5] ? x - y : x + y;//add/sub
 		end
+		3'b001: result = x << y[4:0];//sll/slli
+		3'b010: result = ($signed(x) < $signed(y)) ? 32'h00000001 : 32'h00000000;//slt/slti
+		3'b011: result = (x < y) ? 32'h00000001 : 32'h00000000;//sltu/sltiu
+		3'b100: result = x ^ y;//xor/xori
+		3'b101: result = funct7[5] ? x >>> y[4:0] : x >> y[4:0];//srl/sra/srli/srai
+		3'b110: result = x | y;//or/ori
+		3'b111: result = x & y;//and/andi
 	endcase
 end
 
