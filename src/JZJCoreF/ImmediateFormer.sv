@@ -12,7 +12,6 @@ module ImmediateFormer
 	output [31:0] immediateFormerOutput
 );
 /* Multiplexing Logic */
-
 always_comb
 begin
 	if (immediateFormerMode == LUI)

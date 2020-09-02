@@ -4,6 +4,7 @@ module BranchALU
 (
 	//Control Signals
 	input BranchALUMode_t branchALUMode,
+	input [2:0] funct3,
 	
 	//Immediate Inputs
 	input [31:0] immediateJ,
@@ -19,5 +20,47 @@ module BranchALU
 	output [31:0] programCounterInput,
 	output [31:0] branchALUOutput
 );
+logic [31:0] nextSeqentialPC;
+logic [31:0] nextJALPC;
+logic [31:0] nextJALRPC;
+logic [31:0] nextBranchPC;
+
+logic branchTaken;
+
+/* Output Multiplexing */
+
+//The only time the BranchALU writes to rd is for jal or jalr where nextSeqentialPC is written; for any other mode the output is ignored by RDInputChooser
+assign branchALUOutput = nextSeqentialPC;
+
+always_comb
+begin
+	case (branchALUMode)
+		JAL: programCounterInput = nextJALPC;
+		JALR: programCounterInput = nextJALRPC;
+		BRANCH: programCounterInput = branchTaken ? nextBranchPC : nextSeqentialPC;
+		INCREMENT: programCounterInput = nextSeqentialPC;
+	endcase
+end
+
+/* PC Generation Logic */
+
+assign nextSeqentialPC = pcOfInstruction + 4;
+assign nextJALPC = pcOfInstruction + immediateJ;
+assign nextJALRPC = rs1 + immediateI;
+assign nextBranchPC = pcOfInstruction + immediateB;
+
+/* Branch Comparison */
+always_comb
+begin
+	case (funct3)
+		3'b000: branchTaken = rs1 == rs2;//beq
+		3'b001: branchTaken = rs1 != rs2;//bne
+		3'b100: branchTaken = $signed(rs1) < $signed(rs2);//blt
+		3'b101: branchTaken = $signed(rs1) >= $signed(rs2);//bge
+		3'b110: branchTaken = rs1 < rs2;//bltu
+		3'b111: branchTaken = rs1 >= rs2;//bgeu
+		default: branchTaken = 1'bx;//Invalid funct3//TODO report this to the control logic
+	endcase
+end
 
 endmodule
