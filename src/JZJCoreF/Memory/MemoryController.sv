@@ -1,5 +1,6 @@
 import JZJCoreFTypes::MemoryMode_t;
 import EndiannessFunctions::*;
+import BitExtensionFunctions::*;
 
 module MemoryController//2.5 port memory: 1 read port for instruction fetching, 1 read/write port for data loads/stores
 #(
@@ -92,27 +93,65 @@ assign offset = addressToAccess[1:0];
 
 /* Data Processing */
 
-/* Error Detection *///todo might move this to its own module//actually better idea; make this an internally defined + instantized module
-
-/* Sign Extension Functions */
-
-function automatic logic [31:0] extend16To32(input [15:0] data);
+//backendDataOut to memoryOutput (reading/loading)
+always_comb//Assumes memoryMode is LOAD since memoryOutput will be ignored anyways if it RDInputChooser has not selected memory
 begin
-	extend16To32 = {{16{data[15]}}, data[15:0]};
+	unique case (funct3)
+		3'b000: memoryOutput = signExtend8To32(getByteAtOffset(backendDataOut, offset));//lb
+		3'b001: memoryOutput = signExtend16To32(toBigEndian16(getHalfwordAtOffset(backendDataOut, offset)));//lh
+		3'b010: memoryOutput = toBigEndian32(backendDataOut);//lw
+		3'b100: memoryOutput = zeroExtend8To32(getByteAtOffset(backendDataOut, offset));//lbu
+		3'b101: memoryOutput = zeroExtend16To32(toBigEndian16(getHalfwordAtOffset(backendDataOut, offset)));//lhu
+		default: memoryOutput = 'x;//Bad funct3 or not LOAD
+	endcase
+end
+
+//rs2 + (possibly) backendDataOut to backendDataIn (writing/storing)
+always_comb//Assumes memoryMode is STORE since backendDataIn will not be writen unless memoryMode == STORE (see backendWriteEnable)
+begin//If funct3 is sb or sh, backendDataOut will have already been updated with the original contents of an address last posedge (STORE_PRELOAD), so we can use that here
+	unique case (funct3)
+		//3'b000: //todo
+		//3'b001: //todo
+		3'b010: backendDataIn = toLittleEndian32(rs2);//sw
+		default: backendDataIn = 'x;//Bad funct3 or not STORE
+	endcase
+end
+
+assign backendWriteEnable = memoryMode == STORE;
+
+/* Selection Functions */
+
+function automatic logic [7:0] getByteAtOffset(input [31:0] data, input [1:0] offset);
+begin
+	unique case (offset)
+		2'b00: getByteAtOffset = data[31:24];
+		2'b01: getByteAtOffset = data[23:16];
+		2'b10: getByteAtOffset = data[15:8];
+		2'b11: getByteAtOffset = data[7:0];
+	endcase
 end
 endfunction
 
-//todo more needed
+function automatic logic [15:0] getHalfwordAtOffset(input [31:0] data, input [1:0] offset);
+begin
+	unique case (offset)
+		2'b00: getHalfwordAtOffset = data[31:16];
+		2'b10: getHalfwordAtOffset = data[15:0];
+		default: getHalfwordAtOffset = 'x;//Bad offset
+	endcase
+end
+endfunction
 
 /* Modules */
 //Internal
-MemoryControllerErrorDetector errorDetector(.*);//Should be nested
+MemoryControllerErrorDetector errorDetector(.*);//Should be nested but Quartus Prime does not support nested modules :(
 
 //External
-
-MemoryBackend #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) memoryBackend(.*);//todo move definition of MemoryBackend to inside this module; (maybe)
+MemoryBackend #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) memoryBackend(.*);//todo move definition of MemoryBackend to inside this module; (maybe, does not have to)
 
 endmodule: MemoryController
+
+/****/
 
 //Should be nested but Quartus Prime does not support nested modules :(
 module MemoryControllerErrorDetector
@@ -134,14 +173,14 @@ begin
 		LOAD, STORE_PRELOAD, STORE:
 		begin
 			unique case (funct3)
-				3'b000, 3'b100: memoryUnalignedAccess = 1'b0;//lb/lbu | sb/badfunct3
-				3'b001, 3'b101: memoryUnalignedAccess = (offset == 2'b01) || (offset == 2'b11);//lh/lhu | sh/badfunct3
+				3'b000, 3'b100: memoryUnalignedAccess = 1'b0;//lb/lbu | sb/Bad funct3
+				3'b001, 3'b101: memoryUnalignedAccess = (offset == 2'b01) || (offset == 2'b11);//lh/lhu | sh/Bad funct3
 				3'b010: memoryUnalignedAccess = offset != 2'b00;//lw | sw
 				default: memoryUnalignedAccess = 1'bx;//Bad funct3
 			endcase
 		end
 		NOP: memoryUnalignedAccess = 1'b0;//Not executing an instruction
-		default: memoryUnalignedAccess = 1'b1;//Something is not right
+		default: memoryUnalignedAccess = 1'bx;//Something is not right; bad enum
 	endcase
 end
 
@@ -152,8 +191,8 @@ begin
 		LOAD: memoryBadFunct3 = (funct3 == 3'b011) || (funct3 == 3'b110)|| (funct3 == 3'b111);//None of these funct3s exist
 		STORE_PRELOAD, STORE: memoryBadFunct3 = !((funct3 == 3'b000) || (funct3 == 3'b001)|| (funct3 == 3'b010));//Only these 3 funct3s exist
 		NOP: memoryBadFunct3 = 1'b0;//Not executing an instruction
-		default: memoryBadFunct3 = 1'b1;//Something is not right
+		default: memoryBadFunct3 = 1'bx;//Something is not right; bad enum
 	endcase
 end
 
-endmodule
+endmodule: MemoryControllerErrorDetector
