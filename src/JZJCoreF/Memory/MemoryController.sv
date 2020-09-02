@@ -75,9 +75,11 @@ logic [31:0] backendDataIn;
 logic backendWriteEnable;
 logic [29:0] backendInstructionAddress;
 
+assign backendWriteEnable = memoryMode == STORE;
+
 /* Addressing Logic */
 
-assign backendInstructionAddress = pcOfInstruction[31:2];//If the instruction offset is bad, the ProgramCounter will set its error flag
+assign backendInstructionAddress = pcOfInstruction[31:2];//If the instruction offset is bad, the ProgramCounter will set its error flag so we don't worry about that here
 
 always_comb
 begin
@@ -91,8 +93,31 @@ end
 assign backendAddress = addressToAccess[31:2];
 assign offset = addressToAccess[1:0];
 
-/* Data Processing */
+/* Modules */
+//Internal
+//Should be nested module but Quartus Prime does not support them :(
+MemoryControllerLOADProcessor memoryControllerLOADProcessor(.*);
+MemoryControllerSTOREProcessor memoryControllerSTOREProcessor(.*);
+MemoryControllerErrorDetector errorDetector(.*);
 
+//External
+MemoryBackend #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) memoryBackend(.*);
+
+endmodule: MemoryController
+
+/* Internal Modules */
+
+//Should be nested but Quartus Prime does not support nested modules :(
+module MemoryControllerLOADProcessor
+(
+	//Inputs and raw memory data
+	input [2:0] funct3,
+	input [1:0] offset,
+	input [31:0] backendDataOut,
+	
+	//Output (what to write to rd)
+	output [31:0] memoryOutput
+);
 //backendDataOut to memoryOutput (reading/loading)
 always_comb//Assumes memoryMode is LOAD since memoryOutput will be ignored anyways if it RDInputChooser has not selected memory
 begin
@@ -106,20 +131,7 @@ begin
 	endcase
 end
 
-//rs2 + (possibly) backendDataOut to backendDataIn (writing/storing)
-always_comb//Assumes memoryMode is STORE since backendDataIn will not be writen unless memoryMode == STORE (see backendWriteEnable)
-begin//If funct3 is sb or sh, backendDataOut will have already been updated with the original contents of an address last posedge (STORE_PRELOAD), so we can use that here
-	unique case (funct3)
-		//3'b000: //todo
-		//3'b001: //todo
-		3'b010: backendDataIn = toLittleEndian32(rs2);//sw
-		default: backendDataIn = 'x;//Bad funct3 or not STORE
-	endcase
-end
-
-assign backendWriteEnable = memoryMode == STORE;
-
-/* Selection Functions */
+//Selection Functions
 
 function automatic logic [7:0] getByteAtOffset(input [31:0] data, input [1:0] offset);
 begin
@@ -142,16 +154,36 @@ begin
 end
 endfunction
 
-/* Modules */
-//Internal
-MemoryControllerErrorDetector errorDetector(.*);//Should be nested but Quartus Prime does not support nested modules :(
+endmodule: MemoryControllerLOADProcessor
 
-//External
-MemoryBackend #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) memoryBackend(.*);//todo move definition of MemoryBackend to inside this module; (maybe, does not have to)
+//Should be nested but Quartus Prime does not support nested modules :(
+module MemoryControllerSTOREProcessor
+(
+	//Inputs, new data, and old raw memory data at the address to write to
+	input [2:0] funct3,
+	input [1:0] offset,
+	input [31:0] rs2,
+	input [31:0] backendDataOut,
+	
+	//Output (what to write to the memory address)
+	output [31:0] backendDataIn
+);
 
-endmodule: MemoryController
+//rs2 + (possibly) backendDataOut to backendDataIn (writing/storing)
+always_comb//Assumes memoryMode is STORE since backendDataIn will not be writen unless memoryMode == STORE (see backendWriteEnable)
+begin//If funct3 is sb or sh, backendDataOut will have already been updated with the original contents of an address last posedge (STORE_PRELOAD), so we can use that here
+	unique case (funct3)
+		//3'b000: //todo
+		//3'b001: //todo
+		3'b010: backendDataIn = toLittleEndian32(rs2);//sw
+		default: backendDataIn = 'x;//Bad funct3 or not STORE
+	endcase
+end
 
-/****/
+//Replacement Functions
+//todo
+
+endmodule: MemoryControllerSTOREProcessor
 
 //Should be nested but Quartus Prime does not support nested modules :(
 module MemoryControllerErrorDetector
