@@ -30,7 +30,7 @@ end
 /* ALU Functions */
 always_comb
 begin
-	case (funct3)
+	unique case (funct3)
 		3'b000://add/sub/addi
 		begin
 			if (opImm)//There is no subi

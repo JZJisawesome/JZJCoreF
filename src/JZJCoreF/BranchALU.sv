@@ -56,7 +56,7 @@ assign nextBranchPC = pcOfInstruction + immediateB;
 /* Branch Comparison */
 always_comb
 begin
-	case (funct3)
+	unique case (funct3)
 		3'b000: branchTaken = rs1 == rs2;//beq
 		3'b001: branchTaken = rs1 != rs2;//bne
 		3'b100: branchTaken = $signed(rs1) < $signed(rs2);//blt

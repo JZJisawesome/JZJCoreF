@@ -10,7 +10,7 @@ module MemoryController//2.5 port memory: 1 read port for instruction fetching, 
 	input clock, reset,
 	
 	//Memory Mode and Control
-	input MemoryMode_t memoryMode,//Note: Use LOAD as nop (or STORE_PRELOAD alternatively)
+	input MemoryMode_t memoryMode,
 	input [2:0] funct3,
 	
 	//Addressing
@@ -106,9 +106,54 @@ endfunction
 
 /* Modules */
 //Internal
+MemoryControllerErrorDetector errorDetector(.*);//Should be nested
 
 //External
 
 MemoryBackend #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) memoryBackend(.*);//todo move definition of MemoryBackend to inside this module; (maybe)
+
+endmodule: MemoryController
+
+//Should be nested but Quartus Prime does not support nested modules :(
+module MemoryControllerErrorDetector
+(
+	//Inputs
+	input MemoryMode_t memoryMode,
+	input [2:0] funct3,
+	input [1:0] offset,
+	
+	//Error Flags
+	output memoryUnalignedAccess,
+	output memoryBadFunct3
+);
+
+//Unaligned Access Detection
+always_comb
+begin
+	unique case (memoryMode)
+		LOAD, STORE_PRELOAD, STORE:
+		begin
+			unique case (funct3)
+				3'b000, 3'b100: memoryUnalignedAccess = 1'b0;//lb/lbu | sb/badfunct3
+				3'b001, 3'b101: memoryUnalignedAccess = (offset == 2'b01) || (offset == 2'b11);//lh/lhu | sh/badfunct3
+				3'b010: memoryUnalignedAccess = offset != 2'b00;//lw | sw
+				default: memoryUnalignedAccess = 1'bx;//Bad funct3
+			endcase
+		end
+		NOP: memoryUnalignedAccess = 1'b0;//Not executing an instruction
+		default: memoryUnalignedAccess = 1'b1;//Something is not right
+	endcase
+end
+
+//Bad Funct3 Detection
+always_comb
+begin
+	unique case (memoryMode)
+		LOAD: memoryBadFunct3 = (funct3 == 3'b011) || (funct3 == 3'b110)|| (funct3 == 3'b111);//None of these funct3s exist
+		STORE_PRELOAD, STORE: memoryBadFunct3 = !((funct3 == 3'b000) || (funct3 == 3'b001)|| (funct3 == 3'b010));//Only these 3 funct3s exist
+		NOP: memoryBadFunct3 = 1'b0;//Not executing an instruction
+		default: memoryBadFunct3 = 1'b1;//Something is not right
+	endcase
+end
 
 endmodule
