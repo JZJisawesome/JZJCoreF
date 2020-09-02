@@ -163,7 +163,7 @@ module MemoryControllerSTOREProcessor
 	input [2:0] funct3,
 	input [1:0] offset,
 	input [31:0] rs2,
-	input [31:0] backendDataOut,
+	input [31:0] backendDataOut,//old data
 	
 	//Output (what to write to the memory address)
 	output [31:0] backendDataIn
@@ -173,15 +173,35 @@ module MemoryControllerSTOREProcessor
 always_comb//Assumes memoryMode is STORE since backendDataIn will not be writen unless memoryMode == STORE (see backendWriteEnable)
 begin//If funct3 is sb or sh, backendDataOut will have already been updated with the original contents of an address last posedge (STORE_PRELOAD), so we can use that here
 	unique case (funct3)
-		//3'b000: //todo
-		//3'b001: //todo
+		3'b000: backendDataIn = replaceByteAtOffset(backendDataOut, rs2[7:0], offset);
+		3'b001: backendDataIn = replaceHalfwordAtOffset(backendDataOut, toLittleEndian16(rs2[15:0]), offset);
 		3'b010: backendDataIn = toLittleEndian32(rs2);//sw
 		default: backendDataIn = 'x;//Bad funct3 or not STORE
 	endcase
 end
 
 //Replacement Functions
-//todo
+
+function automatic logic [31:0] replaceByteAtOffset(input [31:0] data, input [7:0] newData, input [1:0] offset);
+begin
+	unique case (offset)
+		2'b00: replaceByteAtOffset = {newData[7:0], data[23:0]};
+		2'b01: replaceByteAtOffset = {data[31:24], newData[7:0], data[15:0]};
+		2'b10: replaceByteAtOffset = {data[31:16], newData[7:0], data[7:0]};
+		2'b11: replaceByteAtOffset = {data[31:8], newData[7:0]};
+	endcase
+end
+endfunction
+
+function automatic logic [31:0] replaceHalfwordAtOffset(input [31:0] data, input [15:0] newData, input [1:0] offset);
+begin
+	unique case (offset)
+		2'b00: replaceHalfwordAtOffset = {newData[15:0], data[15:0]};
+		2'b10: replaceHalfwordAtOffset = {data[31:16], newData[15:0]};
+		default: replaceHalfwordAtOffset = 'x;//Bad offset
+	endcase
+end
+endfunction
 
 endmodule: MemoryControllerSTOREProcessor
 
