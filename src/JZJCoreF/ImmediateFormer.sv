@@ -16,8 +16,10 @@ always_comb
 begin
 	if (immediateFormerMode == LUI)
 		immediateFormerOutput = immediateU;
-	else//auipc
+	else if (immediateFormerMode == AUIPC)
 		immediateFormerOutput = immediateU + pcOfInstruction;
+	else
+		immediateFormerOutput = 'x;//immediateFormerMode
 end
 
 endmodule

@@ -93,6 +93,8 @@ logic [6:0] opcode;
 //Error Flags
 logic branchALUBadFunct3;
 logic programCounterMisaligned;
+logic memoryUnalignedAccess;
+logic memoryBadFunct3;
 
 /* Modules */
 

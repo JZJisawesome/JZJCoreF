@@ -9,7 +9,7 @@ module MemoryController//2.5 port memory: 1 read port for instruction fetching, 
 	input clock, reset,
 	
 	//Memory Mode and Control
-	input MemoryMode_t memoryMode,//Note: Use LOAD as nop
+	input MemoryMode_t memoryMode,//Note: Use LOAD as nop (or STORE_PRELOAD alternatively)
 	input [2:0] funct3,
 	
 	//Addressing
@@ -28,7 +28,8 @@ module MemoryController//2.5 port memory: 1 read port for instruction fetching, 
 	output [31:0] instruction,
 	
 	//Error Flags
-	//todo
+	output memoryUnalignedAccess,
+	output memoryBadFunct3,
 	
 	//CPU memory mapped ports
 	//Note that reads and writes are written to the addresses in little endian format
@@ -60,6 +61,40 @@ module MemoryController//2.5 port memory: 1 read port for instruction fetching, 
 	//If feedback is desired, then inputs should be connected to their respective output register
 	//MAKE SURE INPUTS ARE SYNCHRONIZED IF THEY ARE FROM ANOTHER CLOCK DOMAIN
 );
+/* Primitives */
+//Addressing
+logic [1:0] offset;
+logic [31:0] addressToAccess;
 
+//Backend Connections
+logic [29:0] backendAddress;
+logic [31:0] backendDataOut;
+logic [31:0] backendDataIn;
+logic backendWriteEnable;
+logic [29:0] backendInstructionAddress;
+
+/* Addressing Logic */
+
+assign backendInstructionAddress = pcOfInstruction[31:2];//If the instruction offset is bad, the ProgramCounter will set its error flag
+
+always_comb
+begin
+	case (memoryMode)
+		LOAD: addressToAccess = rs1 + immediateI;
+		STORE_PRELOAD, STORE: addressToAccess = rs1 + immediateS;//STORE_PRELOAD loads data currently at the address of the read-modify-write sequence
+		default: addressToAccess = 'x;//Invalid enum
+	endcase
+end
+
+assign backendAddress = addressToAccess[31:2];
+assign offset = addressToAccess[1:0];
+
+/* Data Processing */
+
+/* Error Detection */
+
+/* Modules */
+
+MemoryBackend #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) memoryBackend(.*);
 
 endmodule

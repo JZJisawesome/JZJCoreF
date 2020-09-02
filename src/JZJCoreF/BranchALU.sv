@@ -42,6 +42,7 @@ begin
 		JALR: programCounterInput = nextJALRPC;
 		BRANCH: programCounterInput = branchTaken ? nextBranchPC : nextSeqentialPC;
 		INCREMENT: programCounterInput = nextSeqentialPC;
+		default: programCounterInput = 32'hxxxxxxxx;//Invalid enum
 	endcase
 end
 
