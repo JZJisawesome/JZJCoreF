@@ -1,13 +1,4 @@
-typedef struct//DecodedAddressing
-{
-	//Note: Modules must be smart enough to decode the opcode and 
-	//know which of these members is valid at a given instant
-	
-	//Addressing
-	logic [4:0] rs1Address;
-	logic [4:0] rs2Address;
-	logic [4:0] rdAddress;
-} DecodedAddressing;
+import JZJCoreFTypes::DecodedAddresses;
 
 module InstructionDecoder
 (
@@ -15,7 +6,7 @@ module InstructionDecoder
 
 	//Note: Modules must be smart enough to decode the opcode and 
 	//know which of these members is valid at a given instant
-	output DecodedAddressing decodedAddressing,//To register file
+	output DecodedAddresses decodedAddresses,//To register file
 	
 	//Instruction Encoding
 	output [6:0] opcode,//For JZJCoreF, opcode is strictly only to be used by the control logic
@@ -30,9 +21,9 @@ module InstructionDecoder
 	output [31:0] immediateJ
 );
 //Addressing
-assign decodedAddressing.rs1Address = instruction[19:15];
-assign decodedAddressing.rs2Address = instruction[24:20];
-assign decodedAddressing.rdAddress = instruction[11:7];
+assign decodedAddresses.rs1Address = instruction[19:15];
+assign decodedAddresses.rs2Address = instruction[24:20];
+assign decodedAddresses.rdAddress = instruction[11:7];
 
 //Instruction Encoding
 assign opcode = instruction[6:0];

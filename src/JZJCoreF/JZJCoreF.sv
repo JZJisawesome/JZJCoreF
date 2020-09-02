@@ -1,3 +1,5 @@
+import JZJCoreFTypes::*;
+
 module JZJCoreF
 #(
 	parameter INITIAL_MEM_CONTENTS = "initialRam.mem",//File containing initial ram contents (32 bit words); execution starts from address 0x00000000
@@ -42,6 +44,7 @@ module JZJCoreF
 /* Connections */
 
 //RegisterFile
+DecodedAddresses decodedAddresses;
 //Reading
 logic [31:0] rs1, rs2;
 //Writing
@@ -53,7 +56,6 @@ logic [31:0] memoryOutput;
 
 //InstructionDecoder
 logic [31:0] instruction;
-DecodedAddressing decodedAddressing;
 logic [6:0] opcode;
 logic [2:0] funct3;
 logic [6:0] funct7;
@@ -74,6 +76,7 @@ logic opImm;
 logic [31:0] aluOutput;
 
 //ImmediateFormer
+immediateFormerMode_t immediateFormerMode;
 logic [31:0] immediateFormerOutput;
 
 //BranchALU
