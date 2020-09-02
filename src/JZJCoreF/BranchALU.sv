@@ -18,7 +18,10 @@ module BranchALU
 	
 	//Outputs
 	output [31:0] programCounterInput,
-	output [31:0] branchALUOutput
+	output [31:0] branchALUOutput,
+	
+	//Error Flag
+	output branchALUBadFunct3
 );
 logic [31:0] nextSeqentialPC;
 logic [31:0] nextJALPC;
@@ -59,8 +62,17 @@ begin
 		3'b101: branchTaken = $signed(rs1) >= $signed(rs2);//bge
 		3'b110: branchTaken = rs1 < rs2;//bltu
 		3'b111: branchTaken = rs1 >= rs2;//bgeu
-		default: branchTaken = 1'bx;//Invalid funct3//TODO report this to the control logic
+		default: branchTaken = 1'bx;//Invalid funct3
 	endcase
+end
+
+/* Bad Funct3 Detection */
+always_comb
+begin
+	if ((branchALUMode == BRANCH) && ((funct3 == 3'b010) || (funct3 == 3'b011)))
+		branchALUBadFunct3 = 1'b1;
+	else//Valid funct3
+		branchALUBadFunct3 = 1'b0;
 end
 
 endmodule

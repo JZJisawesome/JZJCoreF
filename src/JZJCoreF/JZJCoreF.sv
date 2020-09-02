@@ -71,6 +71,7 @@ logic branchALUOutputEnable;
 
 //ProgramCounter
 logic [31:0] programCounterInput;
+logic programCounterWriteEnable;
 
 //ALU
 logic opImm;
@@ -88,14 +89,21 @@ logic [31:0] branchALUOutput;
 logic [31:0] instruction;
 logic [31:0] pcOfInstruction;
 logic [6:0] opcode;
+//Error Flags
+logic branchALUBadFunct3;
+logic programCounterMisaligned;
 
 /* Modules */
 
 RegisterFile registerFile(.*);
 
+
+
 InstructionDecoder instructionDecoder(.*);
 
 RDInputChooser rdInputChooser(.*);
+
+ProgramCounter programCounter(.*);
 
 ALU alu(.*);
 
