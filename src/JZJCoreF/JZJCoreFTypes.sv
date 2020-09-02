@@ -2,6 +2,7 @@ package JZJCoreFTypes;
 	/* Enums */
 	typedef enum {LUI, AUIPC} ImmediateFormerMode_t;
 	typedef enum {JAL, JALR, BRANCH, INCREMENT} BranchALUMode_t;
+	typedef enum {LOAD, STORE_PRELOAD, STORE} MemoryMode_t;
 	
 	/* Structs */
 	

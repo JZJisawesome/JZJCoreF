@@ -16,16 +16,16 @@ module JZJCoreF
 	//My recomendation is therefore that ports are accessed whole words at a time
 	//but if you keep the little endian -> big endian format in mind you can write half words or bytes
 	//Reads from the address read from the input, writes write to the output
-	//Inputs: (byte-wise read)			address (starting byte)
-	input [31:0] portAInput,//	FFFFFFE0
-	input [31:0] portBInput,//	FFFFFFE4
-	input [31:0] portCInput,//   FFFFFFE8
-	input [31:0] portDInput,//   FFFFFFEC
-	input [31:0] portEInput,//   FFFFFFF0
-	input [31:0] portFInput,//   FFFFFFF4
-	input [31:0] portGInput,//   FFFFFFF8
-	input [31:0] portHInput,//   FFFFFFFC
-	//Outputs: (byte-wise write)		address (starting byte)
+	//Inputs: (byte-wise read)		address (starting byte)
+	input [31:0] portAInput,//		FFFFFFE0
+	input [31:0] portBInput,//		FFFFFFE4
+	input [31:0] portCInput,//   	FFFFFFE8
+	input [31:0] portDInput,//   	FFFFFFEC
+	input [31:0] portEInput,//   	FFFFFFF0
+	input [31:0] portFInput,//   	FFFFFFF4
+	input [31:0] portGInput,//   	FFFFFFF8
+	input [31:0] portHInput,//   	FFFFFFFC
+	//Outputs: (byte-wise write)	address (starting byte)
 	output [31:0] portAOutput,//	FFFFFFE0
 	output [31:0] portBOutput,//	FFFFFFE4
 	output [31:0] portCOutput,//	FFFFFFE8
@@ -52,9 +52,8 @@ logic [31:0] rd;//If a module is not writing to rd, then control should set its 
 logic rdWriteEnable;
 
 //MemoryController
+MemoryMode_t memoryMode;
 logic [31:0] memoryOutput;
-//Memory Mapped IO
-MMIOInterface mmioInterface();
 
 //InstructionDecoder
 logic [2:0] funct3;
@@ -99,7 +98,7 @@ logic programCounterMisaligned;
 
 RegisterFile registerFile(.*);
 
-
+MemoryController memoryController(.*);
 
 InstructionDecoder instructionDecoder(.*);
 
@@ -113,26 +112,6 @@ ImmediateFormer immediateFormer(.*);
 
 BranchALU branchALU(.*);
 
-
-
-/* Memory Mapped IO Expansion */
-
-assign mmioInterface.external.portAInput = portAInput;
-assign mmioInterface.external.portBInput = portBInput;
-assign mmioInterface.external.portCInput = portCInput;
-assign mmioInterface.external.portDInput = portDInput;
-assign mmioInterface.external.portEInput = portEInput;
-assign mmioInterface.external.portFInput = portFInput;
-assign mmioInterface.external.portGInput = portGInput;
-assign mmioInterface.external.portHInput = portHInput;
-
-assign portAOutput = mmioInterface.external.portAOutput;
-assign portBOutput = mmioInterface.external.portBOutput;
-assign portCOutput = mmioInterface.external.portCOutput;
-assign portDOutput = mmioInterface.external.portDOutput;
-assign portEOutput = mmioInterface.external.portEOutput;
-assign portFOutput = mmioInterface.external.portFOutput;
-assign portGOutput = mmioInterface.external.portGOutput;
-assign portHOutput = mmioInterface.external.portHOutput;
+//ControlLogic controlLogic(.*);
 
 endmodule
