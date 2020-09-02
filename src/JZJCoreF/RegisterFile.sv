@@ -11,7 +11,7 @@ module RegisterFile
 	
 	//Write Interface
 	input [31:0] rd,
-	input writeEnable
+	input rdWriteEnable
 );
 reg [31:0] registerFile [32];
 
@@ -27,7 +27,7 @@ begin
 		clearRegisterFile();
 	else if (clock)
 	begin
-		if (writeEnable && (decodedAddressing.rdAddress != 5'b00000))//x0 must always be 32'h00000000
+		if (rdWriteEnable && (decodedAddressing.rdAddress != 5'b00000))//x0 must always be 32'h00000000
 			registerFile[decodedAddressing.rdAddress] <= rd;
 	end
 end

@@ -46,7 +46,7 @@ module JZJCoreF
 logic [31:0] rs1, rs2;
 //Writing
 logic [31:0] rd;
-logic writeEnable;
+logic rdWriteEnable;
 
 //Memory
 
