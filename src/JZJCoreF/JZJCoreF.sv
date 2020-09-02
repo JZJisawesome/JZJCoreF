@@ -53,6 +53,8 @@ logic rdWriteEnable;
 
 //MemoryController
 logic [31:0] memoryOutput;
+//Memory Mapped IO
+MMIOInterface mmioInterface();
 
 //InstructionDecoder
 logic [2:0] funct3;
@@ -110,5 +112,27 @@ ALU alu(.*);
 ImmediateFormer immediateFormer(.*);
 
 BranchALU branchALU(.*);
+
+
+
+/* Memory Mapped IO Expansion */
+
+assign mmioInterface.external.portAInput = portAInput;
+assign mmioInterface.external.portBInput = portBInput;
+assign mmioInterface.external.portCInput = portCInput;
+assign mmioInterface.external.portDInput = portDInput;
+assign mmioInterface.external.portEInput = portEInput;
+assign mmioInterface.external.portFInput = portFInput;
+assign mmioInterface.external.portGInput = portGInput;
+assign mmioInterface.external.portHInput = portHInput;
+
+assign portAOutput = mmioInterface.external.portAOutput;
+assign portBOutput = mmioInterface.external.portBOutput;
+assign portCOutput = mmioInterface.external.portCOutput;
+assign portDOutput = mmioInterface.external.portDOutput;
+assign portEOutput = mmioInterface.external.portEOutput;
+assign portFOutput = mmioInterface.external.portFOutput;
+assign portGOutput = mmioInterface.external.portGOutput;
+assign portHOutput = mmioInterface.external.portHOutput;
 
 endmodule
