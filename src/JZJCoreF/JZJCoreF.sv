@@ -54,7 +54,11 @@ logic writeEnable;
 logic [31:0] instruction;
 DecodedInstruction decodedInstruction;
 DecodedAddressing decodedAddressing;
-DecodedImmediates decodedImmediates;
+logic [31:0] immediateI;
+logic [31:0] immediateS;
+logic [31:0] immediateB;
+logic [31:0] immediateU;
+logic [31:0] immediateJ;
 
 /* Modules */
 

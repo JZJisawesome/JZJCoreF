@@ -20,26 +20,20 @@ typedef struct//DecodedAddressing
 	logic [4:0] rdAddress;
 } DecodedAddressing;
 
-//Todo this might make sense to seperate out into indivdual immediate types instead of using a struct (memory nor alu use all the immediate types)
-typedef struct//DecodedImmediates
-{
-	//Note: Modules must be smart enough to decode the opcode and 
-	//know which of these members is valid at a given instant
-	
-	//Immediates (preprocessed)
-	logic [31:0] immediateI;
-	logic [31:0] immediateS;
-	logic [31:0] immediateB;
-	logic [31:0] immediateU;
-	logic [31:0] immediateJ;
-} DecodedImmediates;
-
 module InstructionDecoder
 (
 	input [31:0] instruction,
-	output DecodedInstruction decodedInstruction,
-	output DecodedAddressing decodedAddressing,
-	output DecodedImmediates decodedImmediates
+	output DecodedInstruction decodedInstruction,//To control logic
+	output DecodedAddressing decodedAddressing,//To register file
+	
+	//Note: Modules must be smart enough to decode the opcode and 
+	//know which of these members is valid at a given instant
+	//Immediates (preprocessed)
+	output [31:0] immediateI,
+	output [31:0] immediateS,
+	output [31:0] immediateB,
+	output [31:0] immediateU,
+	output [31:0] immediateJ
 );
 //Instruction Encoding
 assign decodedInstruction.opcode = instruction[6:0];
@@ -52,8 +46,16 @@ assign decodedAddressing.rs2Address = instruction[24:20];
 assign decodedAddressing.rdAddress = instruction[11:7];
 
 //Immediates (preprocessed)
+assign immediateI = extend12To32(instruction[31:20]);
+assign immediateS = extend12To32({instruction[31:25], instruction[11:7]});
+assign immediateB = {{19{instruction[31]}}, instruction[31], instruction[7], instruction[30:25], instruction[11:8], 1'b0};
+assign immediateU = {instruction[31:12], 12'h000};
+assign immediateJ = {{19{instruction[31]}}, instruction[31], instruction[19:12], instruction[20], instruction[30:21], 1'b0};
 
-
-/* Bit Extension Functions */
+function automatic logic [31:0] extend12To32(input [11:0] data);
+begin
+	extend12To32 = {{20{data[11]}}, data[11:0]};
+end
+endfunction
 
 endmodule
