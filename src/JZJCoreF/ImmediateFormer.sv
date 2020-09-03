@@ -13,13 +13,13 @@ module ImmediateFormer
 );
 /* Multiplexing Logic */
 always_comb
-begin
+begin//todo replace with case
 	if (immediateFormerMode == LUI)
 		immediateFormerOutput = immediateU;
 	else if (immediateFormerMode == AUIPC)
 		immediateFormerOutput = immediateU + pcOfInstruction;
 	else
-		immediateFormerOutput = 'x;//immediateFormerMode
+		immediateFormerOutput = 'x;//immediateFormerMode is invalid
 end
 
 endmodule

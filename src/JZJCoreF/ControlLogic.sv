@@ -55,7 +55,7 @@ begin
 	if (reset)
 		currentState <= INITIAL_WAIT;
 	else
-		currentState <= nextState;
+		currentState <= nextState;//Latch new state
 end
 
 //Decide nextState
@@ -97,7 +97,45 @@ end
 //Also handles controlError
 always_comb
 begin
-	//todo
+	unique case (currentState)
+		INITIAL_WAIT, INITIAL_FETCH, HALT:
+		begin
+			//RegisterFile
+			rdWriteEnable = 1'b0;
+			//MemoryController
+			memoryMode = NOP;
+			//RDInputChooser
+			memoryOutputEnable = 1'bx;
+			aluOutputEnable = 1'bx;
+			immediateFormerOutputEnable = 1'bx;
+			branchALUOutputEnable = 1'bx;
+			//ProgramCounter
+			programCounterWriteEnable = 1'b0;
+			//InstructionAddressMux
+			if (currentState == INITIAL_FETCH)
+				instructionAddressSource = CURRENT_PC;//Only difference
+			else//INITIAL_WAIT or HALT
+				instructionAddressSource = InstructionAddressSource_t'('x);
+			//ALU
+			opImm = 1'bx;
+			//ImmediateFormer
+			immediateFormerMode = ImmediateFormerMode_t'('x);
+			//BranchALU
+			branchALUMode = BranchALUMode_t'('x);
+			
+			controlError = 1'b0;
+			stop = 1'b0;
+		end
+		//todo
+		/*FETCH_EXECUTE:
+		begin
+		
+		end
+		EXECUTE:
+		begin
+		
+		end*/
+	endcase
 end
 
 endmodule 
