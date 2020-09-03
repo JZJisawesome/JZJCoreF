@@ -45,7 +45,7 @@ module JZJCoreF
 /* Connections */
 
 //RegisterFile
-DecodedAddresses decodedAddresses;
+DecodedAddresses_t decodedAddresses;
 //Reading
 logic [31:0] rs1, rs2;
 //Writing

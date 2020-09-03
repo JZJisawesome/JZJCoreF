@@ -7,7 +7,7 @@ module InstructionDecoder
 
 	//Note: Modules must be smart enough to decode the opcode and 
 	//know which of these members is valid at a given instant
-	output DecodedAddresses decodedAddresses,//To register file
+	output DecodedAddresses_t decodedAddresses,//To register file
 	
 	//Instruction Encoding
 	output logic [6:0] opcode,//For JZJCoreF, opcode is strictly only to be used by the control logic

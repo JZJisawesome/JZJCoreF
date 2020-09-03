@@ -22,7 +22,7 @@ package JZJCoreFTypes;
 		logic [4:0] rs1Address;
 		logic [4:0] rs2Address;
 		logic [4:0] rdAddress;
-	} DecodedAddresses;//todo rename with _t
+	} DecodedAddresses_t;//todo rename with _t
 	
 	//Used to selecting between RegisterFile inputs
 	typedef struct

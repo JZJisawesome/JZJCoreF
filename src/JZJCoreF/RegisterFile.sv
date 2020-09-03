@@ -1,11 +1,11 @@
-import JZJCoreFTypes::DecodedAddresses;
+import JZJCoreFTypes::DecodedAddresses_t;
 
 module RegisterFile
 (
 	input logic clock, reset,
 	
 	//Register addressing from the decoded instruction
-	input DecodedAddresses decodedAddresses,
+	input DecodedAddresses_t decodedAddresses,
 	
 	//Read Ports
 	output logic [31:0] rs1, rs2,
