@@ -11,7 +11,7 @@ module MemoryController//2.5 port memory: 1 read port for instruction fetching, 
 	input clock, reset,
 	
 	//Memory Mode and Control
-	input MemoryMode_t memoryMode,
+	input MemoryMode_t memoryMode,//NOP will not allow error flags to be set
 	input [2:0] funct3,
 	
 	//Addressing
@@ -173,8 +173,8 @@ module MemoryControllerSTOREProcessor
 always_comb//Assumes memoryMode is STORE since backendDataIn will not be writen unless memoryMode == STORE (see backendWriteEnable)
 begin//If funct3 is sb or sh, backendDataOut will have already been updated with the original contents of an address last posedge (STORE_PRELOAD), so we can use that here
 	unique case (funct3)
-		3'b000: backendDataIn = replaceByteAtOffset(backendDataOut, rs2[7:0], offset);
-		3'b001: backendDataIn = replaceHalfwordAtOffset(backendDataOut, toLittleEndian16(rs2[15:0]), offset);
+		3'b000: backendDataIn = replaceByteAtOffset(backendDataOut, rs2[7:0], offset);//sb
+		3'b001: backendDataIn = replaceHalfwordAtOffset(backendDataOut, toLittleEndian16(rs2[15:0]), offset);//sh
 		3'b010: backendDataIn = toLittleEndian32(rs2);//sw
 		default: backendDataIn = 'x;//Bad funct3 or not STORE
 	endcase
