@@ -130,7 +130,7 @@ begin
 		begin
 			//Things that are the same for all instructions
 			//InstructionAddressMux
-			instructionAddressSource = NEXT_PC;
+			instructionAddressSource = NEXT_PC;//Note that for other modules the current instruction is still used, this is just for memory fetching
 			//ProgramCounter
 			programCounterWriteEnable = 1'b1;
 			
@@ -241,8 +241,48 @@ begin
 					controlError = 1'b0;
 					stop = 1'b0;
 				end
-				//todo: memory load instructions**************************************************************
-				//todo: memory store instructions**************************************************************
+				7'b00000xx://load instructions
+				begin//This happens second
+					//RegisterFile
+					rdWriteEnable = 1'b1;//Latch the value at the address
+					//MemoryController
+					memoryMode = LOAD;//Hold the memoryMode in LOAD to ensure we get the rd value
+					//RDInputChooser
+					memoryOutputEnable = 1'b1;//Now we want the value from memory
+					aluOutputEnable = 1'b0;
+					immediateFormerOutputEnable = 1'b0;
+					branchALUOutputEnable = 1'b0;
+					//ALU
+					opImm = 1'bx;
+					//ImmediateFormer
+					immediateFormerMode = ImmediateFormerMode_t'('x);
+					//BranchALU
+					branchALUMode = INCREMENT;//Now we can move to the next instruction
+					
+					controlError = 1'b0;
+					stop = 1'b0;
+				end
+				7'b00000xx://store instructions
+				begin//This happens second (or is the only step for sw)
+					//RegisterFile
+					rdWriteEnable = 1'b0;
+					//MemoryController
+					memoryMode = STORE;//Now that the old value in memory has been modified with (or overwritten with in the case of sw) rs2, write the data back
+					//RDInputChooser
+					memoryOutputEnable = 1'bx;
+					aluOutputEnable = 1'bx;
+					immediateFormerOutputEnable = 1'bx;
+					branchALUOutputEnable = 1'bx;
+					//ALU
+					opImm = 1'bx;
+					//ImmediateFormer
+					immediateFormerMode = ImmediateFormerMode_t'('x);
+					//BranchALU
+					branchALUMode = INCREMENT;//Now we can move to the next instruction
+					
+					controlError = 1'b0;
+					stop = 1'b0;
+				end
 				7'b00100xx://OP-IMM alu instructions
 				begin
 					//RegisterFile
@@ -285,8 +325,49 @@ begin
 					controlError = 1'b0;
 					stop = 1'b0;
 				end
-				//todo: fence/ifencei, ecall, ebreak******************************************************
-				default:
+				7'b00011xx://fence/fence.i
+				begin//Acts as a nop
+					//RegisterFile
+					rdWriteEnable = 1'b0;
+					//MemoryController
+					memoryMode = NOP;
+					//RDInputChooser
+					memoryOutputEnable = 1'bx;
+					aluOutputEnable = 1'bx;
+					immediateFormerOutputEnable = 1'bx;
+					branchALUOutputEnable = 1'bx;
+					//ALU
+					opImm = 1'bx;
+					//ImmediateFormer
+					immediateFormerMode = ImmediateFormerMode_t'('x);
+					//BranchALU
+					branchALUMode = INCREMENT;//Go to next sequential pc
+					
+					controlError = 1'b0;
+					stop = 1'b0;
+				end
+				7'b11100xx://ecall/ebreak
+				begin//Acts as a fatal trap (on purpose); nice way to stop cpu
+					//RegisterFile
+					rdWriteEnable = 1'b0;
+					//MemoryController
+					memoryMode = NOP;
+					//RDInputChooser
+					memoryOutputEnable = 1'bx;
+					aluOutputEnable = 1'bx;
+					immediateFormerOutputEnable = 1'bx;
+					branchALUOutputEnable = 1'bx;
+					//ALU
+					opImm = 1'bx;
+					//ImmediateFormer
+					immediateFormerMode = ImmediateFormerMode_t'('x);
+					//BranchALU
+					branchALUMode = BranchALUMode_t'('x);
+					
+					controlError = 1'b0;
+					stop = 1'b1;//Halt cpu
+				end
+				default://Bad opcode
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b0;
@@ -297,8 +378,6 @@ begin
 					aluOutputEnable = 1'bx;
 					immediateFormerOutputEnable = 1'bx;
 					branchALUOutputEnable = 1'bx;
-					//ProgramCounter
-					programCounterWriteEnable = 1'b0;
 					//ALU
 					opImm = 1'bx;
 					//ImmediateFormer
@@ -311,11 +390,11 @@ begin
 				end
 			endcase
 		end
-		/*EXECUTE://todo
+		EXECUTE://First cycle of 2 cycle instructions
 		begin
 			//Things that are the same for all instructions
 			//InstructionAddressMux
-			instructionAddressSource = CURRENT_PC;//Same for all instructions
+			instructionAddressSource = CURRENT_PC;//Same for all instructions; since this is a 2 cycle instruction we can't move to the next one yet
 			//ProgramCounter
 			programCounterWriteEnable = 1'b0;
 			//ALU
@@ -327,9 +406,53 @@ begin
 			
 			//unique case (opcode) inside//Quartus Prime does not support case inside
 			unique casex (opcode)//Forced to do this instead
-			
+				7'b00000xx://load instructions
+				begin//This happens first
+					//RegisterFile
+					rdWriteEnable = 1'b0;//Don't need to write to the register yet, and can't mess up the value in the mean time because MemoryController might be referencing rs1
+					//MemoryController
+					memoryMode = LOAD;//Begin a memory load that will complete at the next posedge
+					//RDInputChooser
+					memoryOutputEnable = 1'bx;//No need to set this yet
+					aluOutputEnable = 1'bx;
+					immediateFormerOutputEnable = 1'bx;
+					branchALUOutputEnable = 1'bx;
+					
+					controlError = 1'b0;
+					stop = 1'b0;
+				end
+				7'b01000xx://store instructions
+				begin//This happens first (only needed for sb and sh)
+					//RegisterFile
+					rdWriteEnable = 1'b0;
+					//MemoryController
+					memoryMode = STORE_PRELOAD;//Fetch the old value from the address in memory to modify + write back in the second cycle
+					//RDInputChooser
+					memoryOutputEnable = 1'bx;
+					aluOutputEnable = 1'bx;
+					immediateFormerOutputEnable = 1'bx;
+					branchALUOutputEnable = 1'bx;
+					
+					controlError = 1'b0;
+					stop = 1'b0;
+				end
+				default://Bad opcode for a 2 cycle instruction
+				begin
+					//RegisterFile
+					rdWriteEnable = 1'b0;
+					//MemoryController
+					memoryMode = NOP;
+					//RDInputChooser
+					memoryOutputEnable = 1'bx;
+					aluOutputEnable = 1'bx;
+					immediateFormerOutputEnable = 1'bx;
+					branchALUOutputEnable = 1'bx;
+					
+					controlError = 1'b1;
+					stop = 1'b0;
+				end
 			endcase
-		end*/
+		end
 	endcase
 end
 
