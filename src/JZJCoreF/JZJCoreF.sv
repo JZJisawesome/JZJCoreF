@@ -3,7 +3,8 @@ import JZJCoreFTypes::*;
 module JZJCoreF
 #(
 	parameter INITIAL_MEM_CONTENTS = "initialRam.mem",//File containing initial ram contents (32 bit words); execution starts from address 0x00000000
-	parameter RAM_A_WIDTH = 12//number of addresses for code/ram (not memory mapped io); 2^RAM_A_WIDTH words = 2^RAM_A_WIDTH * 4 bytes
+	parameter RAM_A_WIDTH = 12,//number of addresses for code/ram (not memory mapped io); 2^RAM_A_WIDTH words = 2^RAM_A_WIDTH * 4 bytes
+	parameter RESET_VECTOR = 32'h00000000//address for execution to begin at (must be within RAM)
 )
 (
 	input logic clock, reset,
@@ -110,7 +111,7 @@ InstructionDecoder instructionDecoder(.*);
 
 RDInputChooser rdInputChooser(.*);
 
-ProgramCounter programCounter(.*);
+ProgramCounter #(.RESET_VECTOR(RESET_VECTOR)) programCounter(.*);
 
 InstructionAddressMux instructionAddressMux(.*);
 

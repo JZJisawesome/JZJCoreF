@@ -4,7 +4,7 @@ module RegisterFile
 (
 	input logic clock, reset,
 	
-	//Register addressing from decoded instruction
+	//Register addressing from the decoded instruction
 	input DecodedAddresses decodedAddresses,
 	
 	//Read Ports
@@ -15,7 +15,7 @@ module RegisterFile
 	input logic [31:0] rd,
 	input logic rdWriteEnable
 );
-reg [31:0] registerFile [32];
+reg [31:0] registerFile [32];//x0 through x31
 
 //Read Port Multiplexing
 assign rs1 = registerFile[decodedAddresses.rs1Address];

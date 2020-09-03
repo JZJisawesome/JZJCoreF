@@ -1,6 +1,6 @@
 module ProgramCounter
 #(
-	parameter INITIAL_PC = 32'h00000000
+	parameter RESET_VECTOR = 32'h00000000
 )
 (
 	input logic clock, reset,
@@ -9,13 +9,13 @@ module ProgramCounter
 	output logic [31:0] pcOfInstruction,
 	
 	//Write Port
-	input logic  [31:0] programCounterInput,
+	input logic  [31:0] programCounterInput,//Latched on the positive edge when programCounterWriteEnable is asserted
 	input logic programCounterWriteEnable,
 	
 	//Error Flag
 	output logic programCounterMisaligned
 );
-reg [31:0] programCounter = INITIAL_PC;
+reg [31:0] programCounter = RESET_VECTOR;
 
 assign pcOfInstruction = programCounter;
 assign programCounterMisaligned = programCounter[1:0] != 2'b00;
@@ -24,7 +24,7 @@ assign programCounterMisaligned = programCounter[1:0] != 2'b00;
 always_ff @(posedge clock, posedge reset)
 begin
 	if (reset)
-		programCounter <= INITIAL_PC;
+		programCounter <= RESET_VECTOR;
 	else if (clock)
 	begin
 		if (programCounterWriteEnable)

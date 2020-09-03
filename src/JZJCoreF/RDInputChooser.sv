@@ -2,6 +2,7 @@ module RDInputChooser
 (
 	//Module output selection (from control logic)
 	//Only 1 should be enabled at a time, could be bundled in a struct down the road
+	//todo put into a struct
 	input logic memoryOutputEnable,
 	input logic aluOutputEnable,
 	input logic immediateFormerOutputEnable,

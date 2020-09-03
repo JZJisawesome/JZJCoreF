@@ -32,17 +32,18 @@ logic branchTaken;
 
 /* Output Multiplexing */
 
-//The only time the BranchALU writes to rd is for jal or jalr where nextSeqentialPC is written; for any other mode the output is ignored by RDInputChooser
+//The only time the BranchALU writes to rd is for jal or jalr where nextSeqentialPC is written
+//For any other mode, the output is ignored by RDInputChooser so branchALUOutput can just be set to this permanetly
 assign branchALUOutput = nextSeqentialPC;
 
 always_comb
 begin
-	case (branchALUMode)
+	unique case (branchALUMode)
 		JAL: programCounterInput = nextJALPC;
 		JALR: programCounterInput = nextJALRPC;
 		BRANCH: programCounterInput = branchTaken ? nextBranchPC : nextSeqentialPC;
 		INCREMENT: programCounterInput = nextSeqentialPC;
-		default: programCounterInput = 32'hxxxxxxxx;//Invalid enum
+		default: programCounterInput = 32'hxxxxxxxx;//branchALUMode is invalid
 	endcase
 end
 

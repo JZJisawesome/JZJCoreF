@@ -13,7 +13,7 @@ module ALU
 	//Output
 	output logic [31:0] aluOutput
 );
-logic [31:0] operand2;
+logic [31:0] secondOperand;
 
 /* Input Multiplexing */
 
@@ -21,10 +21,10 @@ always_comb
 begin
 	if (opImm)
 	begin
-		operand2 = immediateI;
+		secondOperand = immediateI;
 	end
 	else
-		operand2 = rs2;
+		secondOperand = rs2;
 end
 
 /* ALU Functions */
@@ -34,17 +34,17 @@ begin
 		3'b000://add/sub/addi
 		begin
 			if (opImm)//There is no subi
-				aluOutput = rs1 + operand2;//addi
+				aluOutput = rs1 + secondOperand;//addi
 			else
-				aluOutput = funct7[5] ? rs1 - operand2 : rs1 + operand2;//add/sub
+				aluOutput = funct7[5] ? rs1 - secondOperand : rs1 + secondOperand;//add/sub
 		end
-		3'b001: aluOutput = rs1 << operand2[4:0];//sll/slli
-		3'b010: aluOutput = ($signed(rs1) < $signed(operand2)) ? 32'h00000001 : 32'h00000000;//slt/slti
-		3'b011: aluOutput = (rs1 < operand2) ? 32'h00000001 : 32'h00000000;//sltu/sltiu
-		3'b100: aluOutput = rs1 ^ operand2;//xor/xori
-		3'b101: aluOutput = funct7[5] ? rs1 >>> operand2[4:0] : rs1 >> operand2[4:0];//srl/sra/srli/srai
-		3'b110: aluOutput = rs1 | operand2;//or/ori
-		3'b111: aluOutput = rs1 & operand2;//and/andi
+		3'b001: aluOutput = rs1 << secondOperand[4:0];//sll/slli
+		3'b010: aluOutput = ($signed(rs1) < $signed(secondOperand)) ? 32'h00000001 : 32'h00000000;//slt/slti
+		3'b011: aluOutput = (rs1 < secondOperand) ? 32'h00000001 : 32'h00000000;//sltu/sltiu
+		3'b100: aluOutput = rs1 ^ secondOperand;//xor/xori
+		3'b101: aluOutput = funct7[5] ? rs1 >>> secondOperand[4:0] : rs1 >> secondOperand[4:0];//srl/sra/srli/srai
+		3'b110: aluOutput = rs1 | secondOperand;//or/ori
+		3'b111: aluOutput = rs1 & secondOperand;//and/andi
 	endcase
 end
 

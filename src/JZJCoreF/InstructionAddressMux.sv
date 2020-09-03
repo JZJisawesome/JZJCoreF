@@ -2,7 +2,7 @@ import JZJCoreFTypes::*;
 
 module InstructionAddressMux
 (
-	//Select Line
+	//Choose instruction address source (NEXT_PC or CURRENT_PC)
 	input InstructionAddressSource_t instructionAddressSource,
 
 	//Inputs
@@ -18,7 +18,7 @@ begin
 	unique case (instructionAddressSource)
 		NEXT_PC: 	instructionAddressToAccess = programCounterInput;
 		CURRENT_PC:	instructionAddressToAccess = pcOfInstruction;
-		default: 	instructionAddressToAccess = 'x;//Should/will never happen
+		default: 	instructionAddressToAccess = 'x;//instructionAddressSource is invalid
 	endcase
 end
 

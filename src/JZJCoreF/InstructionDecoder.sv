@@ -2,6 +2,7 @@ import JZJCoreFTypes::*;
 
 module InstructionDecoder
 (
+	//Instruction to decode
 	input logic [31:0] instruction,
 
 	//Note: Modules must be smart enough to decode the opcode and 
@@ -37,6 +38,7 @@ assign immediateB = {{19{instruction[31]}}, instruction[31], instruction[7], ins
 assign immediateU = {instruction[31:12], 12'h000};
 assign immediateJ = {{11{instruction[31]}}, instruction[31], instruction[19:12], instruction[20], instruction[30:21], 1'b0};
 
+//Sign extension function
 function automatic logic [31:0] extend12To32(input [11:0] data);
 begin
 	extend12To32 = {{20{data[11]}}, data[11:0]};
