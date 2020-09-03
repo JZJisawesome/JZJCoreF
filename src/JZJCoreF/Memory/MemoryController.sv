@@ -74,8 +74,10 @@ logic [31:0] backendDataOut;
 logic [31:0] backendDataIn;
 logic backendWriteEnable;
 logic [29:0] backendInstructionAddress;
+logic [31:0] instructionLittleEndian;
 
 assign backendWriteEnable = memoryMode == STORE;
+assign instruction = toBigEndian32(instructionLittleEndian);
 
 /* Addressing Logic */
 

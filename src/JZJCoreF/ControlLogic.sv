@@ -39,15 +39,27 @@ module ControlLogic
 logic halt;//Next state should be state halt
 logic stop;//ecall/ebreak is signaling core to halt
 logic controlError;//Bad opcode or something similar
-assign halt = branchALUBadFunct3 | programCounterMisaligned | memoryUnalignedAccess | memoryBadFunct3 | stop | controlError | (opcode[1:0] != 2'b11);
+assign halt = branchALUBadFunct3 | programCounterMisaligned | memoryUnalignedAccess | memoryBadFunct3 | stop | controlError;// | (opcode[1:0] != 2'b11)//todo should only be checked during an instruction execution state
 
 logic isTwoCycleInstruction;//Updated on posedge after state change to determine next state change
 
 //State Machine
-typedef enum logic [4:0] {INITIAL_WAIT, INITIAL_FETCH, FETCH_EXECUTE, EXECUTE, HALT} State_t;//todo make sure this is onehot
+typedef enum logic [4:0]
+{
+	INITIAL_WAIT = 5'b00001,
+	INITIAL_FETCH = 5'b00010,
+	FETCH_EXECUTE = 5'b00100,
+	EXECUTE = 5'b01000,
+	HALT = 5'b10000
+} State_t;//todo make sure this is onehot
 State_t currentState, nextState;
 
 /* State Machine Logic */
+
+initial
+begin
+	currentState = INITIAL_WAIT;
+end
 
 //State Change
 always_ff @(negedge clock, posedge reset)

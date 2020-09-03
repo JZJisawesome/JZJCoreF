@@ -18,7 +18,7 @@ module MemoryBackend
 	
 	//Instruction Fetch (only from RAM)
 	input [29:0] backendInstructionAddress,
-	output logic [31:0] instruction
+	output logic [31:0] instructionLittleEndian
 	
 	//todo put mmio inputs and outputs here
 );
@@ -28,6 +28,6 @@ module MemoryBackend
 InferredRAM #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) inferredRamTemp(.*, .writeAddress(backendAddress), .dataIn(backendDataIn),
 																																		.writeEnable(backendWriteEnable), .readAddressA(backendAddress),
 																																		.dataOutA(backendDataOut), .readAddressB(backendInstructionAddress),
-																																		.dataOutB(instruction));
+																																		.dataOutB(instructionLittleEndian));
 
 endmodule 
