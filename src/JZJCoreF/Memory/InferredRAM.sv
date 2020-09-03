@@ -4,7 +4,7 @@ module InferredRAM
 	parameter RAM_A_WIDTH = 12
 )
 (
-	input clock, reset,
+	input clock,
 	
 	//Write Port
 	input [A_MAX:0] writeAddress,

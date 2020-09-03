@@ -24,8 +24,16 @@ int main(int argc, char** argv)
     Verilated::traceEverOn(true);//Needed to support $dumpfile
     
     //Simulation Loop
+    
+    testbench->eval();//Update simulation
+    ++simulationTime;//Used to keep track of simulation time for vcd dumping
     while (!Verilated::gotFinish())//Run simulation until $finish() is called in systemVerilog
     {
+        testbench->clock = 1;//Set clock high
+        testbench->eval();//Update simulation
+        ++simulationTime;//Used to keep track of simulation time for vcd dumping
+        
+        testbench->clock = 0;//Set clock high
         testbench->eval();//Update simulation
         ++simulationTime;//Used to keep track of simulation time for vcd dumping
     }
