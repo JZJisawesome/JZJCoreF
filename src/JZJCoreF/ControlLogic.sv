@@ -44,7 +44,7 @@ assign halt = branchALUBadFunct3 | programCounterMisaligned | memoryUnalignedAcc
 logic isTwoCycleInstruction;//Updated on posedge after state change to determine next state change
 
 //State Machine
-typedef enum {INITIAL_WAIT, INITIAL_FETCH, FETCH_EXECUTE, EXECUTE, HALT} State_t;
+typedef enum logic [4:0] {INITIAL_WAIT, INITIAL_FETCH, FETCH_EXECUTE, EXECUTE, HALT} State_t;//todo make sure this is onehot
 State_t currentState, nextState;
 
 /* State Machine Logic */
@@ -54,7 +54,7 @@ always_ff @(negedge clock, posedge reset)
 begin
 	if (reset)
 		currentState <= INITIAL_WAIT;
-	else
+	else if (~clock)
 		currentState <= nextState;//Latch new state
 end
 
@@ -126,14 +126,102 @@ begin
 			controlError = 1'b0;
 			stop = 1'b0;
 		end
-		//todo
-		/*FETCH_EXECUTE:
+		FETCH_EXECUTE:
 		begin
-		
+			//Things that are the same for all instructions
+			//InstructionAddressMux
+			instructionAddressSource = NEXT_PC;
+			//ProgramCounter
+			programCounterWriteEnable = 1'b1;
+			
+			//unique case (opcode) inside//Quartus Prime does not support case inside
+			unique casex (opcode)//Forced to do this instead
+				7'b01101xx://lui
+				begin
+					//RegisterFile
+					rdWriteEnable = 1'b1;//Save lui value
+					//MemoryController
+					memoryMode = NOP;
+					//RDInputChooser
+					memoryOutputEnable = 1'b0;
+					aluOutputEnable = 1'b0;
+					immediateFormerOutputEnable = 1'b1;//Get lui value
+					branchALUOutputEnable = 1'b0;
+					//ALU
+					opImm = 1'bx;
+					//ImmediateFormer
+					immediateFormerMode = LUI;//Generate lui value
+					//BranchALU
+					branchALUMode = INCREMENT;//Go to next sequential pc
+					
+					controlError = 1'b0;
+					stop = 1'b0;
+				end
+				7'b00101xx://auipc
+				begin
+					//RegisterFile
+					rdWriteEnable = 1'b1;//Save auipc value
+					//MemoryController
+					memoryMode = NOP;
+					//RDInputChooser
+					memoryOutputEnable = 1'b0;
+					aluOutputEnable = 1'b0;
+					immediateFormerOutputEnable = 1'b1;//Get auipc value
+					branchALUOutputEnable = 1'b0;
+					//ALU
+					opImm = 1'bx;
+					//ImmediateFormer
+					immediateFormerMode = AUIPC;//Generate auipc value
+					//BranchALU
+					branchALUMode = INCREMENT;//Go to next sequential pc
+					
+					controlError = 1'b0;
+					stop = 1'b0;
+				end
+				//todo: other instructions
+				default:
+				begin
+					//RegisterFile
+					rdWriteEnable = 1'b0;
+					//MemoryController
+					memoryMode = NOP;
+					//RDInputChooser
+					memoryOutputEnable = 1'bx;
+					aluOutputEnable = 1'bx;
+					immediateFormerOutputEnable = 1'bx;
+					branchALUOutputEnable = 1'bx;
+					//ProgramCounter
+					programCounterWriteEnable = 1'b0;
+					//ALU
+					opImm = 1'bx;
+					//ImmediateFormer
+					immediateFormerMode = ImmediateFormerMode_t'('x);
+					//BranchALU
+					branchALUMode = BranchALUMode_t'('x);
+					
+					controlError = 1'b1;//Bad opcode
+					stop = 1'bx;
+				end
+			endcase
 		end
-		EXECUTE:
+		/*EXECUTE://todo
 		begin
-		
+			//Things that are the same for all instructions
+			//InstructionAddressMux
+			instructionAddressSource = CURRENT_PC;//Same for all instructions
+			//ProgramCounter
+			programCounterWriteEnable = 1'b0;
+			//ALU
+			opImm = 1'bx;
+			//ImmediateFormer
+			immediateFormerMode = ImmediateFormerMode_t'('x);
+			//BranchALU
+			branchALUMode = BranchALUMode_t'('x);
+			
+			//unique case (opcode) inside//Quartus Prime does not support case inside
+			unique casex (opcode)//Forced to do this instead
+			
+			endcase
 		end*/
 	endcase
 end
