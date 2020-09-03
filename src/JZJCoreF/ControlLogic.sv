@@ -20,6 +20,8 @@ module ControlLogic
 	output reg branchALUOutputEnable,
 	//ProgramCounter
 	output reg programCounterWriteEnable,
+	//InstructionAddressMux
+	output InstructionAddressSource_t instructionAddressSource,
 	//ALU
 	output reg opImm,
 	//ImmediateFormer

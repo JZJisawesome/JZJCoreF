@@ -26,7 +26,7 @@ module MemoryController//2.5 port memory: 1 read port for instruction fetching, 
 	input [31:0] rs2,//Will only write if memoryMode is STORE; for half words and bytes the memoryMode must be STORE_PRELOAD for 1 cycle first, then STORE to actually write
 	
 	//Instruction Fetching
-	input [31:0] pcOfInstruction,
+	input [31:0] instructionAddressToAccess,
 	output [31:0] instruction,
 	
 	//Error Flags
@@ -79,7 +79,7 @@ assign backendWriteEnable = memoryMode == STORE;
 
 /* Addressing Logic */
 
-assign backendInstructionAddress = pcOfInstruction[31:2];//If the instruction offset is bad, the ProgramCounter will set its error flag so we don't worry about that here
+assign backendInstructionAddress = instructionAddressToAccess[31:2];//If the instruction offset is bad, the ProgramCounter will set its error flag so we don't worry about that here
 
 always_comb
 begin

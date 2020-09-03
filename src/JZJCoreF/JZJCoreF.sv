@@ -77,7 +77,8 @@ logic programCounterWriteEnable;
 logic [31:0] pcOfInstruction;
 
 //InstructionAddressMux
-//todo (switches between pcOfInstruction and programCounterInput)
+InstructionAddressSource_t instructionAddressSource;
+logic [31:0] instructionAddressToAccess;
 
 //ALU
 logic opImm;
@@ -110,6 +111,8 @@ InstructionDecoder instructionDecoder(.*);
 RDInputChooser rdInputChooser(.*);
 
 ProgramCounter programCounter(.*);
+
+InstructionAddressMux instructionAddressMux(.*);
 
 ALU alu(.*);
 
