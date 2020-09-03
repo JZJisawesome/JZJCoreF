@@ -54,6 +54,7 @@ logic rdWriteEnable;
 //MemoryController
 MemoryMode_t memoryMode;
 logic [31:0] memoryOutput;
+logic [31:0] instruction;
 
 //InstructionDecoder
 logic [2:0] funct3;
@@ -73,6 +74,10 @@ logic branchALUOutputEnable;
 //ProgramCounter
 logic [31:0] programCounterInput;
 logic programCounterWriteEnable;
+logic [31:0] pcOfInstruction;
+
+//InstructionAddressMux
+//todo (switches between pcOfInstruction and programCounterInput)
 
 //ALU
 logic opImm;
@@ -87,8 +92,6 @@ BranchALUMode_t branchALUMode;
 logic [31:0] branchALUOutput;
 
 //Control Logic
-logic [31:0] instruction;
-logic [31:0] pcOfInstruction;
 logic [6:0] opcode;
 //Error Flags
 logic branchALUBadFunct3;
@@ -114,6 +117,6 @@ ImmediateFormer immediateFormer(.*);
 
 BranchALU branchALU(.*);
 
-//ControlLogic controlLogic(.*);
+ControlLogic controlLogic(.*);
 
 endmodule

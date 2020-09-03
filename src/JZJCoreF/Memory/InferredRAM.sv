@@ -7,19 +7,22 @@ module InferredRAM
 	input clock, reset,
 	
 	//Write Port
-	input [RAM_A_WIDTH - 1:0] writeAddress,
+	input [A_MAX:0] writeAddress,
 	input [31:0] dataIn,
 	input writeEnable,
 	
 	//Read Port A
-	input [RAM_A_WIDTH - 1:0] readAddressA,
+	input [A_MAX:0] readAddressA,
 	output reg [31:0] dataOutA,
 	
 	//Read Port B
-	input [RAM_A_WIDTH - 1:0] readAddressB,
+	input [A_MAX:0] readAddressB,
 	output reg [31:0] dataOutB
 );
+//Primitives
+localparam A_MAX = RAM_A_WIDTH - 1;
 localparam NUMBER_OF_ADDRESSES = 2 ** RAM_A_WIDTH;
+
 reg [31:0] inferredRam [NUMBER_OF_ADDRESSES];
 
 //Port Reading and Writing Logic
