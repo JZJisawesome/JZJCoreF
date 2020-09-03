@@ -8,8 +8,8 @@ module RegisterFile
 	input DecodedAddresses decodedAddresses,
 	
 	//Read Ports
-	output [31:0] rs1, rs2,
-	output [31:0] register31Output,
+	output logic [31:0] rs1, rs2,
+	output logic [31:0] register31Output,
 	
 	//Write Port
 	input [31:0] rd,

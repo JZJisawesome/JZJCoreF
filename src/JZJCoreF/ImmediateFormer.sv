@@ -9,7 +9,7 @@ module ImmediateFormer
 	input [31:0] pcOfInstruction,
 	
 	//Output
-	output [31:0] immediateFormerOutput
+	output logic [31:0] immediateFormerOutput
 );
 /* Multiplexing Logic */
 always_comb

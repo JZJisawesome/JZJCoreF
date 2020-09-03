@@ -10,6 +10,7 @@ src/incremental_db
 src/db
 src/*.qws
 *.o
+testBenches/verilator/obj_dir/
 
 #Other things
 *.kate-swp

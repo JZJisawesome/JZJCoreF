@@ -20,18 +20,18 @@ module MemoryController//2.5 port memory: 1 read port for instruction fetching, 
 	input [31:0] immediateS,
 	
 	//Memory Loads
-	output [31:0] memoryOutput,//Will only update if memoryMode is LOAD
+	output logic [31:0] memoryOutput,//Will only update if memoryMode is LOAD
 	
 	//Memory Stores
 	input [31:0] rs2,//Will only write if memoryMode is STORE; for half words and bytes the memoryMode must be STORE_PRELOAD for 1 cycle first, then STORE to actually write
 	
 	//Instruction Fetching
 	input [31:0] instructionAddressToAccess,
-	output [31:0] instruction,
+	output logic [31:0] instruction,
 	
 	//Error Flags
-	output memoryUnalignedAccess,
-	output memoryBadFunct3,
+	output logic memoryUnalignedAccess,
+	output logic memoryBadFunct3,
 	
 	//CPU memory mapped ports
 	//Note that reads and writes are written to the addresses in little endian format
@@ -41,24 +41,24 @@ module MemoryController//2.5 port memory: 1 read port for instruction fetching, 
 	//My recomendation is therefore that ports are accessed whole words at a time
 	//but if you keep the little endian -> big endian format in mind you can write half words or bytes
 	//Reads from the address read from the input, writes write to the output
-	//Inputs: (byte-wise read)		address (starting byte)
-	input [31:0] portAInput,//		FFFFFFE0
-	input [31:0] portBInput,//		FFFFFFE4
-	input [31:0] portCInput,//  	FFFFFFE8
-	input [31:0] portDInput,//  	FFFFFFEC
-	input [31:0] portEInput,//   	FFFFFFF0
-	input [31:0] portFInput,//   	FFFFFFF4
-	input [31:0] portGInput,//   	FFFFFFF8
-	input [31:0] portHInput,//   	FFFFFFFC
-	//Outputs: (byte-wise write)	address (starting byte)
-	output [31:0] portAOutput,//	FFFFFFE0
-	output [31:0] portBOutput,//	FFFFFFE4
-	output [31:0] portCOutput,//	FFFFFFE8
-	output [31:0] portDOutput,//	FFFFFFEC
-	output [31:0] portEOutput,//	FFFFFFF0
-	output [31:0] portFOutput,//	FFFFFFF4
-	output [31:0] portGOutput,//	FFFFFFF8
-	output [31:0] portHOutput//	FFFFFFFC
+	//Inputs: (byte-wise read)				address (starting byte)
+	input [31:0] portAInput,//				FFFFFFE0
+	input [31:0] portBInput,//				FFFFFFE4
+	input [31:0] portCInput,//   			FFFFFFE8
+	input [31:0] portDInput,//   			FFFFFFEC
+	input [31:0] portEInput,//   			FFFFFFF0
+	input [31:0] portFInput,//   			FFFFFFF4
+	input [31:0] portGInput,//   			FFFFFFF8
+	input [31:0] portHInput,//   			FFFFFFFC
+	//Outputs: (byte-wise write)			address (starting byte)
+	output logic [31:0] portAOutput,//	FFFFFFE0
+	output logic [31:0] portBOutput,//	FFFFFFE4
+	output logic [31:0] portCOutput,//	FFFFFFE8
+	output logic [31:0] portDOutput,//	FFFFFFEC
+	output logic [31:0] portEOutput,//	FFFFFFF0
+	output logic [31:0] portFOutput,//	FFFFFFF4
+	output logic [31:0] portGOutput,//	FFFFFFF8
+	output logic [31:0] portHOutput//	FFFFFFFC
 	//For tristate ports, an additional port's outputs can be designated as a direction register, which can be used by and external module to allow/disalow writing
 	//If feedback is desired, then inputs should be connected to their respective output register
 	//MAKE SURE INPUTS ARE SYNCHRONIZED IF THEY ARE FROM ANOTHER CLOCK DOMAIN
@@ -116,7 +116,7 @@ module MemoryControllerLOADProcessor
 	input [31:0] backendDataOut,
 	
 	//Output (what to write to rd)
-	output [31:0] memoryOutput
+	output logic [31:0] memoryOutput
 );
 //backendDataOut to memoryOutput (reading/loading)
 always_comb//Assumes memoryMode is LOAD since memoryOutput will be ignored anyways if it RDInputChooser has not selected memory
@@ -166,7 +166,7 @@ module MemoryControllerSTOREProcessor
 	input [31:0] backendDataOut,//old data
 	
 	//Output (what to write to the memory address)
-	output [31:0] backendDataIn
+	output logic [31:0] backendDataIn
 );
 
 //rs2 + (possibly) backendDataOut to backendDataIn (writing/storing)
@@ -214,8 +214,8 @@ module MemoryControllerErrorDetector
 	input [1:0] offset,
 	
 	//Error Flags
-	output memoryUnalignedAccess,
-	output memoryBadFunct3
+	output logic memoryUnalignedAccess,
+	output logic memoryBadFunct3
 );
 
 //Unaligned Access Detection

@@ -6,14 +6,14 @@ module ProgramCounter
 	input clock, reset,
 	
 	//Read Port
-	output [31:0] pcOfInstruction,
+	output logic [31:0] pcOfInstruction,
 	
 	//Write Port
 	input [31:0] programCounterInput,
 	input programCounterWriteEnable,
 	
 	//Error Flag
-	output programCounterMisaligned
+	output logic programCounterMisaligned
 );
 reg [31:0] programCounter = INITIAL_PC;
 

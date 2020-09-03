@@ -10,7 +10,7 @@ module InstructionAddressMux
 	input [31:0] pcOfInstruction,//The current contents of the ProgramCounter (CURRENT_PC)
 
 	//Output (address for MemoryController port)
-	output [31:0] instructionAddressToAccess
+	output logic [31:0] instructionAddressToAccess
 );
 //Multiplexing
 always_comb

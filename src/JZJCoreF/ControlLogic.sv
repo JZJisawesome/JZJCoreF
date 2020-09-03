@@ -10,20 +10,20 @@ module ControlLogic
 	
 	/* Control Lines */
 	//RegisterFile
-	output rdWriteEnable,
+	output logic rdWriteEnable,
 	//MemoryController
 	output MemoryMode_t memoryMode,
 	//RDInputChooser//todo make a struct or enum for this
-	output memoryOutputEnable,
-	output aluOutputEnable,
-	output immediateFormerOutputEnable,
-	output branchALUOutputEnable,
+	output logic memoryOutputEnable,
+	output logic aluOutputEnable,
+	output logic immediateFormerOutputEnable,
+	output logic branchALUOutputEnable,
 	//ProgramCounter
-	output programCounterWriteEnable,
+	output logic programCounterWriteEnable,
 	//InstructionAddressMux
 	output InstructionAddressSource_t instructionAddressSource,
 	//ALU
-	output opImm,
+	output logic opImm,
 	//ImmediateFormer
 	output ImmediateFormerMode_t immediateFormerMode,
 	//BranchALU
@@ -262,7 +262,7 @@ begin
 					controlError = 1'b0;
 					stop = 1'b0;
 				end
-				7'b00000xx://store instructions
+				7'b01000xx://store instructions
 				begin//This happens second (or is the only step for sw)
 					//RegisterFile
 					rdWriteEnable = 1'b0;

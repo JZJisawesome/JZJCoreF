@@ -37,4 +37,10 @@ begin
 	dataOutB <= inferredRam[readAddressB];
 end
 
+//Memory Initialization
+initial
+begin
+	$readmemh(INITIAL_MEM_CONTENTS, inferredRam);
+end
+
 endmodule 

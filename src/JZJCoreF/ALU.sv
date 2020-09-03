@@ -11,7 +11,7 @@ module ALU
 	input [31:0] immediateI,
 	
 	//Output
-	output [31:0] aluOutput
+	output logic [31:0] aluOutput
 );
 logic [31:0] operand2;
 

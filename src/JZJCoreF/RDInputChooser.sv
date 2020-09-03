@@ -14,7 +14,7 @@ module RDInputChooser
 	input [31:0] branchALUOutput,
 	
 	//Output to register file in (rd)
-	output [31:0] rd
+	output logic [31:0] rd
 );
 //Switched versions of module data are 32'h00000000 if their corresponding enable line is disabled
 logic [31:0] memoryOutputSwitched;

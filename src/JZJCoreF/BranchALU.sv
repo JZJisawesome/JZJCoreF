@@ -17,11 +17,11 @@ module BranchALU
 	input [31:0] pcOfInstruction,
 	
 	//Outputs
-	output [31:0] programCounterInput,
-	output [31:0] branchALUOutput,
+	output logic [31:0] programCounterInput,
+	output logic [31:0] branchALUOutput,
 	
 	//Error Flag
-	output branchALUBadFunct3
+	output logic branchALUBadFunct3
 );
 logic [31:0] nextSeqentialPC;
 logic [31:0] nextJALPC;

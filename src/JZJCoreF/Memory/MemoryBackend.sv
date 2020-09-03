@@ -10,7 +10,7 @@ module MemoryBackend
 	input [29:0] backendAddress,
 	
 	//Read Port
-	output [31:0] backendDataOut,
+	output logic [31:0] backendDataOut,
 	
 	//Write Port
 	input [31:0] backendDataIn,
@@ -18,7 +18,7 @@ module MemoryBackend
 	
 	//Instruction Fetch (only from RAM)
 	input [29:0] backendInstructionAddress,
-	output [31:0] instruction
+	output logic [31:0] instruction
 	
 	//todo put mmio inputs and outputs here
 );
