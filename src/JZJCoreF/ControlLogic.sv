@@ -1,12 +1,18 @@
-import JZJCoreFTypes::*;
+import JZJCoreFTypes::*;//todo specify only needed members
+
+//breaks verilator
+//import JZJCoreFTypes::InstructionFormerMode_t;
+//import JZJCoreFTypes::BranchALUMode_t;
+//import JZJCoreFTypes::MemoryMode_t;
+//import JZJCoreFTypes::InstructionAddressSource_t;
 
 module ControlLogic
 (
-	input clock, reset,
+	input logic clock, reset,
 	
 	/* Instruction Parameters In */
-	input [6:0] opcode,
-	input [2:0] funct3,
+	input logic [6:0] opcode,
+	input logic [2:0] funct3,
 	
 	/* Control Lines */
 	//RegisterFile
@@ -30,10 +36,10 @@ module ControlLogic
 	output BranchALUMode_t branchALUMode,
 	
 	/* Error Flags */
-	input branchALUBadFunct3,
-	input programCounterMisaligned,
-	input memoryUnalignedAccess,
-	input memoryBadFunct3
+	input logic branchALUBadFunct3,
+	input logic programCounterMisaligned,
+	input logic memoryUnalignedAccess,
+	input logic memoryBadFunct3
 );
 /* Primitives */
 logic halt;//Next state should be state halt

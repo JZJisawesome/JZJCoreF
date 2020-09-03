@@ -1,6 +1,11 @@
 import JZJCoreFTypes::MemoryMode_t;
-import EndiannessFunctions::*;
-import BitExtensionFunctions::*;
+
+import EndiannessFunctions::toBigEndian32;
+import EndiannessFunctions::toLittleEndian32;
+import EndiannessFunctions::toBigEndian16;
+import EndiannessFunctions::toLittleEndian16;
+
+import BitExtensionFunctions::*;//todo specify only needed members
 
 module MemoryController//2.5 port memory: 1 read port for instruction fetching, 1 read/write port for data loads/stores
 #(
@@ -8,25 +13,25 @@ module MemoryController//2.5 port memory: 1 read port for instruction fetching, 
 	parameter RAM_A_WIDTH = 12
 )
 (
-	input clock, reset,
+	input logic clock, reset,
 	
 	//Memory Mode and Control
 	input MemoryMode_t memoryMode,//NOP will not allow error flags to be set
-	input [2:0] funct3,
+	input logic [2:0] funct3,
 	
 	//Addressing
-	input [31:0] rs1,
-	input [31:0] immediateI,
-	input [31:0] immediateS,
+	input logic [31:0] rs1,
+	input logic [31:0] immediateI,
+	input logic [31:0] immediateS,
 	
 	//Memory Loads
 	output logic [31:0] memoryOutput,//Will only update if memoryMode is LOAD
 	
 	//Memory Stores
-	input [31:0] rs2,//Will only write if memoryMode is STORE; for half words and bytes the memoryMode must be STORE_PRELOAD for 1 cycle first, then STORE to actually write
+	input logic [31:0] rs2,//Will only write if memoryMode is STORE; for half words and bytes the memoryMode must be STORE_PRELOAD for 1 cycle first, then STORE to actually write
 	
 	//Instruction Fetching
-	input [31:0] instructionAddressToAccess,
+	input logic [31:0] instructionAddressToAccess,
 	output logic [31:0] instruction,
 	
 	//Error Flags
@@ -42,14 +47,14 @@ module MemoryController//2.5 port memory: 1 read port for instruction fetching, 
 	//but if you keep the little endian -> big endian format in mind you can write half words or bytes
 	//Reads from the address read from the input, writes write to the output
 	//Inputs: (byte-wise read)				address (starting byte)
-	input [31:0] portAInput,//				FFFFFFE0
-	input [31:0] portBInput,//				FFFFFFE4
-	input [31:0] portCInput,//   			FFFFFFE8
-	input [31:0] portDInput,//   			FFFFFFEC
-	input [31:0] portEInput,//   			FFFFFFF0
-	input [31:0] portFInput,//   			FFFFFFF4
-	input [31:0] portGInput,//   			FFFFFFF8
-	input [31:0] portHInput,//   			FFFFFFFC
+	input logic [31:0] portAInput,//		FFFFFFE0
+	input logic [31:0] portBInput,//		FFFFFFE4
+	input logic [31:0] portCInput,//   	FFFFFFE8
+	input logic [31:0] portDInput,//   	FFFFFFEC
+	input logic [31:0] portEInput,//   	FFFFFFF0
+	input logic [31:0] portFInput,//   	FFFFFFF4
+	input logic [31:0] portGInput,//   	FFFFFFF8
+	input logic [31:0] portHInput,//   	FFFFFFFC
 	//Outputs: (byte-wise write)			address (starting byte)
 	output logic [31:0] portAOutput,//	FFFFFFE0
 	output logic [31:0] portBOutput,//	FFFFFFE4
@@ -113,9 +118,9 @@ endmodule: MemoryController
 module MemoryControllerLOADProcessor
 (
 	//Inputs and raw memory data
-	input [2:0] funct3,
-	input [1:0] offset,
-	input [31:0] backendDataOut,
+	input logic [2:0] funct3,
+	input logic [1:0] offset,
+	input logic [31:0] backendDataOut,
 	
 	//Output (what to write to rd)
 	output logic [31:0] memoryOutput
@@ -162,10 +167,10 @@ endmodule: MemoryControllerLOADProcessor
 module MemoryControllerSTOREProcessor
 (
 	//Inputs, new data, and old raw memory data at the address to write to
-	input [2:0] funct3,
-	input [1:0] offset,
-	input [31:0] rs2,
-	input [31:0] backendDataOut,//old data
+	input logic [2:0] funct3,
+	input logic [1:0] offset,
+	input logic [31:0] rs2,
+	input logic [31:0] backendDataOut,//old data
 	
 	//Output (what to write to the memory address)
 	output logic [31:0] backendDataIn
@@ -212,8 +217,8 @@ module MemoryControllerErrorDetector
 (
 	//Inputs
 	input MemoryMode_t memoryMode,
-	input [2:0] funct3,
-	input [1:0] offset,
+	input logic [2:0] funct3,
+	input logic [1:0] offset,
 	
 	//Error Flags
 	output logic memoryUnalignedAccess,

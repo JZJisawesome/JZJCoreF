@@ -1,4 +1,4 @@
-import JZJCoreFTypes::*;
+import JZJCoreFTypes::*;//todo specify only needed members
 
 module JZJCoreF
 #(
@@ -6,7 +6,7 @@ module JZJCoreF
 	parameter RAM_A_WIDTH = 12//number of addresses for code/ram (not memory mapped io); 2^RAM_A_WIDTH words = 2^RAM_A_WIDTH * 4 bytes
 )
 (
-	input clock, reset,
+	input logic clock, reset,
 	
 	//CPU memory mapped ports
 	//Note that reads and writes are written to the addresses in little endian format
@@ -17,14 +17,14 @@ module JZJCoreF
 	//but if you keep the little endian -> big endian format in mind you can write half words or bytes
 	//Reads from the address read from the input, writes write to the output
 	//Inputs: (byte-wise read)				address (starting byte)
-	input [31:0] portAInput,//				FFFFFFE0
-	input [31:0] portBInput,//				FFFFFFE4
-	input [31:0] portCInput,//   			FFFFFFE8
-	input [31:0] portDInput,//   			FFFFFFEC
-	input [31:0] portEInput,//   			FFFFFFF0
-	input [31:0] portFInput,//   			FFFFFFF4
-	input [31:0] portGInput,//   			FFFFFFF8
-	input [31:0] portHInput,//   			FFFFFFFC
+	input logic [31:0] portAInput,//		FFFFFFE0
+	input logic [31:0] portBInput,//		FFFFFFE4
+	input logic [31:0] portCInput,//   	FFFFFFE8
+	input logic [31:0] portDInput,//   	FFFFFFEC
+	input logic [31:0] portEInput,//   	FFFFFFF0
+	input logic [31:0] portFInput,//   	FFFFFFF4
+	input logic [31:0] portGInput,//   	FFFFFFF8
+	input logic [31:0] portHInput,//   	FFFFFFFC
 	//Outputs: (byte-wise write)			address (starting byte)
 	output logic [31:0] portAOutput,//	FFFFFFE0
 	output logic [31:0] portBOutput,//	FFFFFFE4

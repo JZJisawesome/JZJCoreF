@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+//`timescale 1ns/1ps
 module JZJCoreF_tb
 (
     input logic clock//toggled by verilator

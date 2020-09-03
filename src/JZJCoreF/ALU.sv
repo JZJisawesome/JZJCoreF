@@ -1,14 +1,14 @@
 module ALU
 (
 	//Determine ALU function
-	input [2:0] funct3,
-	input [6:0] funct7,
-	input opImm,//Instruction type is OP-IMM (so using immediateI instead of rs2)
+	input logic [2:0] funct3,
+	input logic [6:0] funct7,
+	input logic opImm,//Instruction type is OP-IMM (so using immediateI instead of rs2)
 	
 	//Operands
-	input [31:0] rs1,
-	input [31:0] rs2,
-	input [31:0] immediateI,
+	input logic [31:0] rs1,
+	input logic [31:0] rs2,
+	input logic [31:0] immediateI,
 	
 	//Output
 	output logic [31:0] aluOutput

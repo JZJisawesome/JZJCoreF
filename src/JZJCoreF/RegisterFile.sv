@@ -2,7 +2,7 @@ import JZJCoreFTypes::DecodedAddresses;
 
 module RegisterFile
 (
-	input clock, reset,
+	input logic clock, reset,
 	
 	//Register addressing from decoded instruction
 	input DecodedAddresses decodedAddresses,
@@ -12,8 +12,8 @@ module RegisterFile
 	output logic [31:0] register31Output,
 	
 	//Write Port
-	input [31:0] rd,
-	input rdWriteEnable
+	input logic [31:0] rd,
+	input logic rdWriteEnable
 );
 reg [31:0] registerFile [32];
 

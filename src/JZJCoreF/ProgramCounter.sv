@@ -3,14 +3,14 @@ module ProgramCounter
 	parameter INITIAL_PC = 32'h00000000
 )
 (
-	input clock, reset,
+	input logic clock, reset,
 	
 	//Read Port
 	output logic [31:0] pcOfInstruction,
 	
 	//Write Port
-	input [31:0] programCounterInput,
-	input programCounterWriteEnable,
+	input logic  [31:0] programCounterInput,
+	input logic programCounterWriteEnable,
 	
 	//Error Flag
 	output logic programCounterMisaligned

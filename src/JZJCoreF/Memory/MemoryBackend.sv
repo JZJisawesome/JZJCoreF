@@ -4,20 +4,20 @@ module MemoryBackend
 	parameter RAM_A_WIDTH = 12
 )
 (
-	input clock, reset,
+	input logic clock, reset,
 	
 	//Read/Write Address
-	input [29:0] backendAddress,
+	input logic [29:0] backendAddress,
 	
 	//Read Port
 	output logic [31:0] backendDataOut,
 	
 	//Write Port
-	input [31:0] backendDataIn,
-	input backendWriteEnable,
+	input logic [31:0] backendDataIn,
+	input logic backendWriteEnable,
 	
 	//Instruction Fetch (only from RAM)
-	input [29:0] backendInstructionAddress,
+	input logic [29:0] backendInstructionAddress,
 	output logic [31:0] instructionLittleEndian
 	
 	//todo put mmio inputs and outputs here

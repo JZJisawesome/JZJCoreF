@@ -6,8 +6,8 @@ module InstructionAddressMux
 	input InstructionAddressSource_t instructionAddressSource,
 
 	//Inputs
-	input [31:0] programCounterInput,//Output of BranchALU before being latched by the ProgramCounter (NEXT_PC)
-	input [31:0] pcOfInstruction,//The current contents of the ProgramCounter (CURRENT_PC)
+	input logic [31:0] programCounterInput,//Output of BranchALU before being latched by the ProgramCounter (NEXT_PC)
+	input logic [31:0] pcOfInstruction,//The current contents of the ProgramCounter (CURRENT_PC)
 
 	//Output (address for MemoryController port)
 	output logic [31:0] instructionAddressToAccess

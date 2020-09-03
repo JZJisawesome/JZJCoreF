@@ -5,8 +5,8 @@ module ImmediateFormer
 	input ImmediateFormerMode_t immediateFormerMode,
 
 	//Operands
-	input [31:0] immediateU,
-	input [31:0] pcOfInstruction,
+	input logic [31:0] immediateU,
+	input logic [31:0] pcOfInstruction,
 	
 	//Output
 	output logic [31:0] immediateFormerOutput

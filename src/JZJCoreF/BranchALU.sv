@@ -4,17 +4,17 @@ module BranchALU
 (
 	//Control Signals
 	input BranchALUMode_t branchALUMode,
-	input [2:0] funct3,
+	input logic [2:0] funct3,
 	
 	//Immediate Inputs
-	input [31:0] immediateJ,
-	input [31:0] immediateI,
-	input [31:0] immediateB,
+	input logic [31:0] immediateJ,
+	input logic [31:0] immediateI,
+	input logic [31:0] immediateB,
 	
 	//Register Inputs
-	input [31:0] rs1,
-	input [31:0] rs2,
-	input [31:0] pcOfInstruction,
+	input logic [31:0] rs1,
+	input logic [31:0] rs2,
+	input logic [31:0] pcOfInstruction,
 	
 	//Outputs
 	output logic [31:0] programCounterInput,

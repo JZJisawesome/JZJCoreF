@@ -2,16 +2,16 @@ module RDInputChooser
 (
 	//Module output selection (from control logic)
 	//Only 1 should be enabled at a time, could be bundled in a struct down the road
-	input memoryOutputEnable,
-	input aluOutputEnable,
-	input immediateFormerOutputEnable,
-	input branchALUOutputEnable,
+	input logic memoryOutputEnable,
+	input logic aluOutputEnable,
+	input logic immediateFormerOutputEnable,
+	input logic branchALUOutputEnable,
 
 	//Inputs from modules
-	input [31:0] memoryOutput,
-	input [31:0] aluOutput,
-	input [31:0] immediateFormerOutput,
-	input [31:0] branchALUOutput,
+	input logic [31:0] memoryOutput,
+	input logic [31:0] aluOutput,
+	input logic [31:0] immediateFormerOutput,
+	input logic [31:0] branchALUOutput,
 	
 	//Output to register file in (rd)
 	output logic [31:0] rd

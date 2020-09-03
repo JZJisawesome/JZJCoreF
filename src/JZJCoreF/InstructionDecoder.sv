@@ -2,7 +2,7 @@ import JZJCoreFTypes::DecodedAddresses;
 
 module InstructionDecoder
 (
-	input [31:0] instruction,
+	input logic [31:0] instruction,
 
 	//Note: Modules must be smart enough to decode the opcode and 
 	//know which of these members is valid at a given instant
@@ -14,11 +14,11 @@ module InstructionDecoder
 	output logic [6:0] funct7,
 	
 	//Immediates (preprocessed)
-	output [31:0] immediateI,
-	output [31:0] immediateS,
-	output [31:0] immediateB,
-	output [31:0] immediateU,
-	output [31:0] immediateJ
+	output logic [31:0] immediateI,
+	output logic [31:0] immediateS,
+	output logic [31:0] immediateB,
+	output logic [31:0] immediateU,
+	output logic [31:0] immediateJ
 );
 //Addressing
 assign decodedAddresses.rs1Address = instruction[19:15];
