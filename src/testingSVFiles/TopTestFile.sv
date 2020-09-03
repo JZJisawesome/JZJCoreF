@@ -48,7 +48,7 @@ logic [15:0] displayOutput;
 assign displayOutput = register31Output;
 
 //The core
-localparam FILE = "memFiles/fenceecalltest.mem";
+localparam FILE = "memFiles/lbutest.mem";
 
 //Full speed
 //JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest

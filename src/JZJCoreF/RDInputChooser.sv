@@ -1,12 +1,10 @@
+import JZJCoreFTypes::RDSourceSelectLines_t;
+
 module RDInputChooser
 (
 	//Module output selection (from control logic)
-	//Only 1 should be enabled at a time, could be bundled in a struct down the road
-	//todo put into a struct
-	input logic memoryOutputEnable,
-	input logic aluOutputEnable,
-	input logic immediateFormerOutputEnable,
-	input logic branchALUOutputEnable,
+	//Only 1 should be enabled at a time
+	input RDSourceSelectLines_t rdSourceSelectLines,
 
 	//Inputs from modules
 	input logic [31:0] memoryOutput,
@@ -31,10 +29,10 @@ assign rd = memoryOutputSwitched | aluOutputSwitched | immediateFormerOutputSwit
 //Switched versions of module data are 32'h00000000 if their corresponding enable line is disabled
 always_comb
 begin
-	memoryOutputSwitched = memoryOutput & {{32{memoryOutputEnable}}};
-	aluOutputSwitched = aluOutput & {{32{aluOutputEnable}}};
-	immediateFormerOutputSwitched = immediateFormerOutput & {{32{immediateFormerOutputEnable}}};
-	branchALUOutputSwitched = branchALUOutput & {{32{branchALUOutputEnable}}};
+	memoryOutputSwitched = memoryOutput & {{32{rdSourceSelectLines.memoryOutputEnable}}};
+	aluOutputSwitched = aluOutput & {{32{rdSourceSelectLines.aluOutputEnable}}};
+	immediateFormerOutputSwitched = immediateFormerOutput & {{32{rdSourceSelectLines.immediateFormerOutputEnable}}};
+	branchALUOutputSwitched = branchALUOutput & {{32{rdSourceSelectLines.branchALUOutputEnable}}};
 end
 
 endmodule

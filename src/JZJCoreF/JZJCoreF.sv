@@ -67,10 +67,7 @@ logic [31:0] immediateU;
 logic [31:0] immediateJ;
 
 //RDInputChooser
-logic memoryOutputEnable;
-logic aluOutputEnable;
-logic immediateFormerOutputEnable;
-logic branchALUOutputEnable;
+RDSourceSelectLines_t rdSourceSelectLines;
 
 //ProgramCounter
 logic [31:0] programCounterInput;

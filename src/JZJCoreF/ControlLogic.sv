@@ -13,11 +13,8 @@ module ControlLogic
 	output logic rdWriteEnable,
 	//MemoryController
 	output MemoryMode_t memoryMode,
-	//RDInputChooser//todo make a struct or enum for this
-	output logic memoryOutputEnable,
-	output logic aluOutputEnable,
-	output logic immediateFormerOutputEnable,
-	output logic branchALUOutputEnable,
+	//RDInputChooser
+	output RDSourceSelectLines_t rdSourceSelectLines,
 	//ProgramCounter
 	output logic programCounterWriteEnable,
 	//InstructionAddressMux
@@ -110,10 +107,10 @@ begin
 			//MemoryController
 			memoryMode = NOP;
 			//RDInputChooser
-			memoryOutputEnable = 1'bx;
-			aluOutputEnable = 1'bx;
-			immediateFormerOutputEnable = 1'bx;
-			branchALUOutputEnable = 1'bx;
+			rdSourceSelectLines.memoryOutputEnable = 1'bx;
+			rdSourceSelectLines.aluOutputEnable = 1'bx;
+			rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
+			rdSourceSelectLines.branchALUOutputEnable = 1'bx;
 			//ProgramCounter
 			programCounterWriteEnable = 1'b0;
 			//InstructionAddressMux
@@ -145,10 +142,10 @@ begin
 					//MemoryController
 					memoryMode = NOP;
 					//RDInputChooser
-					memoryOutputEnable = 1'b0;
-					aluOutputEnable = 1'b0;
-					immediateFormerOutputEnable = 1'b1;//Get lui value
-					branchALUOutputEnable = 1'b0;
+					rdSourceSelectLines.memoryOutputEnable = 1'b0;
+					rdSourceSelectLines.aluOutputEnable = 1'b0;
+					rdSourceSelectLines.immediateFormerOutputEnable = 1'b1;//Get lui value
+					rdSourceSelectLines.branchALUOutputEnable = 1'b0;
 					//ALU
 					opImm = 1'bx;
 					//ImmediateFormer
@@ -166,10 +163,10 @@ begin
 					//MemoryController
 					memoryMode = NOP;
 					//RDInputChooser
-					memoryOutputEnable = 1'b0;
-					aluOutputEnable = 1'b0;
-					immediateFormerOutputEnable = 1'b1;//Get auipc value
-					branchALUOutputEnable = 1'b0;
+					rdSourceSelectLines.memoryOutputEnable = 1'b0;
+					rdSourceSelectLines.aluOutputEnable = 1'b0;
+					rdSourceSelectLines.immediateFormerOutputEnable = 1'b1;//Get auipc value
+					rdSourceSelectLines.branchALUOutputEnable = 1'b0;
 					//ALU
 					opImm = 1'bx;
 					//ImmediateFormer
@@ -187,10 +184,10 @@ begin
 					//MemoryController
 					memoryMode = NOP;
 					//RDInputChooser
-					memoryOutputEnable = 1'b0;
-					aluOutputEnable = 1'b0;
-					immediateFormerOutputEnable = 1'b0;
-					branchALUOutputEnable = 1'b1;//Get rd from BranchALU
+					rdSourceSelectLines.memoryOutputEnable = 1'b0;
+					rdSourceSelectLines.aluOutputEnable = 1'b0;
+					rdSourceSelectLines.immediateFormerOutputEnable = 1'b0;
+					rdSourceSelectLines.branchALUOutputEnable = 1'b1;//Get rd from BranchALU
 					//ALU
 					opImm = 1'bx;
 					//ImmediateFormer
@@ -208,10 +205,10 @@ begin
 					//MemoryController
 					memoryMode = NOP;
 					//RDInputChooser
-					memoryOutputEnable = 1'b0;
-					aluOutputEnable = 1'b0;
-					immediateFormerOutputEnable = 1'b0;
-					branchALUOutputEnable = 1'b1;//Get rd from BranchALU
+					rdSourceSelectLines.memoryOutputEnable = 1'b0;
+					rdSourceSelectLines.aluOutputEnable = 1'b0;
+					rdSourceSelectLines.immediateFormerOutputEnable = 1'b0;
+					rdSourceSelectLines.branchALUOutputEnable = 1'b1;//Get rd from BranchALU
 					//ALU
 					opImm = 1'bx;
 					//ImmediateFormer
@@ -229,10 +226,10 @@ begin
 					//MemoryController
 					memoryMode = NOP;
 					//RDInputChooser
-					memoryOutputEnable = 1'bx;
-					aluOutputEnable = 1'bx;
-					immediateFormerOutputEnable = 1'bx;
-					branchALUOutputEnable = 1'bx;
+					rdSourceSelectLines.memoryOutputEnable = 1'bx;
+					rdSourceSelectLines.aluOutputEnable = 1'bx;
+					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
+					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
 					//ALU
 					opImm = 1'bx;
 					//ImmediateFormer
@@ -250,10 +247,10 @@ begin
 					//MemoryController
 					memoryMode = LOAD;//Hold the memoryMode in LOAD to ensure we get the rd value
 					//RDInputChooser
-					memoryOutputEnable = 1'b1;//Now we want the value from memory
-					aluOutputEnable = 1'b0;
-					immediateFormerOutputEnable = 1'b0;
-					branchALUOutputEnable = 1'b0;
+					rdSourceSelectLines.memoryOutputEnable = 1'b1;//Now we want the value from memory
+					rdSourceSelectLines.aluOutputEnable = 1'b0;
+					rdSourceSelectLines.immediateFormerOutputEnable = 1'b0;
+					rdSourceSelectLines.branchALUOutputEnable = 1'b0;
 					//ALU
 					opImm = 1'bx;
 					//ImmediateFormer
@@ -271,10 +268,10 @@ begin
 					//MemoryController
 					memoryMode = STORE;//Now that the old value in memory has been modified with (or overwritten with in the case of sw) rs2, write the data back
 					//RDInputChooser
-					memoryOutputEnable = 1'bx;
-					aluOutputEnable = 1'bx;
-					immediateFormerOutputEnable = 1'bx;
-					branchALUOutputEnable = 1'bx;
+					rdSourceSelectLines.memoryOutputEnable = 1'bx;
+					rdSourceSelectLines.aluOutputEnable = 1'bx;
+					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
+					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
 					//ALU
 					opImm = 1'bx;
 					//ImmediateFormer
@@ -292,10 +289,10 @@ begin
 					//MemoryController
 					memoryMode = NOP;
 					//RDInputChooser
-					memoryOutputEnable = 1'b0;
-					aluOutputEnable = 1'b1;//Output alu result
-					immediateFormerOutputEnable = 1'b0;
-					branchALUOutputEnable = 1'b0;
+					rdSourceSelectLines.memoryOutputEnable = 1'b0;
+					rdSourceSelectLines.aluOutputEnable = 1'b1;//Output alu result
+					rdSourceSelectLines.immediateFormerOutputEnable = 1'b0;
+					rdSourceSelectLines.branchALUOutputEnable = 1'b0;
 					//ALU
 					opImm = 1'b1;//Is an OP-IMM type instruction
 					//ImmediateFormer
@@ -313,10 +310,10 @@ begin
 					//MemoryController
 					memoryMode = NOP;
 					//RDInputChooser
-					memoryOutputEnable = 1'b0;
-					aluOutputEnable = 1'b1;//Output alu result
-					immediateFormerOutputEnable = 1'b0;
-					branchALUOutputEnable = 1'b0;
+					rdSourceSelectLines.memoryOutputEnable = 1'b0;
+					rdSourceSelectLines.aluOutputEnable = 1'b1;//Output alu result
+					rdSourceSelectLines.immediateFormerOutputEnable = 1'b0;
+					rdSourceSelectLines.branchALUOutputEnable = 1'b0;
 					//ALU
 					opImm = 1'b0;//Is not an OP-IMM type instruction
 					//ImmediateFormer
@@ -334,10 +331,10 @@ begin
 					//MemoryController
 					memoryMode = NOP;
 					//RDInputChooser
-					memoryOutputEnable = 1'bx;
-					aluOutputEnable = 1'bx;
-					immediateFormerOutputEnable = 1'bx;
-					branchALUOutputEnable = 1'bx;
+					rdSourceSelectLines.memoryOutputEnable = 1'bx;
+					rdSourceSelectLines.aluOutputEnable = 1'bx;
+					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
+					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
 					//ALU
 					opImm = 1'bx;
 					//ImmediateFormer
@@ -355,10 +352,10 @@ begin
 					//MemoryController
 					memoryMode = NOP;
 					//RDInputChooser
-					memoryOutputEnable = 1'bx;
-					aluOutputEnable = 1'bx;
-					immediateFormerOutputEnable = 1'bx;
-					branchALUOutputEnable = 1'bx;
+					rdSourceSelectLines.memoryOutputEnable = 1'bx;
+					rdSourceSelectLines.aluOutputEnable = 1'bx;
+					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
+					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
 					//ALU
 					opImm = 1'bx;
 					//ImmediateFormer
@@ -376,10 +373,10 @@ begin
 					//MemoryController
 					memoryMode = NOP;
 					//RDInputChooser
-					memoryOutputEnable = 1'bx;
-					aluOutputEnable = 1'bx;
-					immediateFormerOutputEnable = 1'bx;
-					branchALUOutputEnable = 1'bx;
+					rdSourceSelectLines.memoryOutputEnable = 1'bx;
+					rdSourceSelectLines.aluOutputEnable = 1'bx;
+					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
+					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
 					//ALU
 					opImm = 1'bx;
 					//ImmediateFormer
@@ -415,10 +412,10 @@ begin
 					//MemoryController
 					memoryMode = LOAD;//Begin a memory load that will complete at the next posedge
 					//RDInputChooser
-					memoryOutputEnable = 1'bx;//No need to set this yet
-					aluOutputEnable = 1'bx;
-					immediateFormerOutputEnable = 1'bx;
-					branchALUOutputEnable = 1'bx;
+					rdSourceSelectLines.memoryOutputEnable = 1'bx;//No need to set this yet
+					rdSourceSelectLines.aluOutputEnable = 1'bx;
+					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
+					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
 					
 					controlError = 1'b0;
 					stop = 1'b0;
@@ -430,10 +427,10 @@ begin
 					//MemoryController
 					memoryMode = STORE_PRELOAD;//Fetch the old value from the address in memory to modify + write back in the second cycle
 					//RDInputChooser
-					memoryOutputEnable = 1'bx;
-					aluOutputEnable = 1'bx;
-					immediateFormerOutputEnable = 1'bx;
-					branchALUOutputEnable = 1'bx;
+					rdSourceSelectLines.memoryOutputEnable = 1'bx;
+					rdSourceSelectLines.aluOutputEnable = 1'bx;
+					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
+					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
 					
 					controlError = 1'b0;
 					stop = 1'b0;
@@ -445,10 +442,10 @@ begin
 					//MemoryController
 					memoryMode = NOP;
 					//RDInputChooser
-					memoryOutputEnable = 1'bx;
-					aluOutputEnable = 1'bx;
-					immediateFormerOutputEnable = 1'bx;
-					branchALUOutputEnable = 1'bx;
+					rdSourceSelectLines.memoryOutputEnable = 1'bx;
+					rdSourceSelectLines.aluOutputEnable = 1'bx;
+					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
+					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
 					
 					controlError = 1'b1;
 					stop = 1'b0;

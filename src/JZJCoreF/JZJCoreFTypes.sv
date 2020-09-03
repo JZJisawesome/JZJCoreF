@@ -5,7 +5,6 @@ package JZJCoreFTypes;
 	typedef logic [6:0] Funct7_t;//todo use in the future
 
 	/* Enums */
-	typedef enum logic [1:0] {MEMORY, ALU, IMMEDIATE_FORMER, BRANCH_ALU} RDSource_t;//Todo use this for RDInputChooser in the future; might also just create a structure containing the enable wires if it is faster
 	typedef enum logic {LUI, AUIPC} ImmediateFormerMode_t;
 	typedef enum logic [1:0] {JAL, JALR, BRANCH, INCREMENT} BranchALUMode_t;//Note: use anything but BRANCH for a nop
 	typedef enum logic [1:0] {LOAD, STORE_PRELOAD, STORE, NOP} MemoryMode_t;
@@ -23,5 +22,14 @@ package JZJCoreFTypes;
 		logic [4:0] rs1Address;
 		logic [4:0] rs2Address;
 		logic [4:0] rdAddress;
-	} DecodedAddresses;
+	} DecodedAddresses;//todo rename with _t
+	
+	//Used to selecting between RegisterFile inputs
+	typedef struct
+	{
+		logic memoryOutputEnable;
+		logic aluOutputEnable;
+		logic immediateFormerOutputEnable;
+		logic branchALUOutputEnable;
+	} RDSourceSelectLines_t;
 endpackage
