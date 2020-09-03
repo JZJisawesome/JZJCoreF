@@ -44,28 +44,22 @@ assign halt = branchALUBadFunct3 | programCounterMisaligned | memoryUnalignedAcc
 logic isTwoCycleInstruction;//Updated on posedge after state change to determine next state change
 
 //State Machine
-typedef enum logic [4:0]
+typedef enum logic [3:0]
 {
-	INITIAL_WAIT = 5'b00001,
-	INITIAL_FETCH = 5'b00010,
-	FETCH_EXECUTE = 5'b00100,
-	EXECUTE = 5'b01000,
-	HALT = 5'b10000
+	INITIAL_FETCH = 4'b0001,
+	FETCH_EXECUTE = 4'b0010,
+	EXECUTE = 4'b0100,
+	HALT = 4'b1000
 } State_t;//todo make sure this is onehot
-State_t currentState, nextState;
+State_t currentState = INITIAL_FETCH, nextState;
 
 /* State Machine Logic */
-
-initial
-begin
-	currentState = INITIAL_WAIT;
-end
 
 //State Change
 always_ff @(negedge clock, posedge reset)
 begin
 	if (reset)
-		currentState <= INITIAL_WAIT;
+		currentState <= INITIAL_FETCH;
 	else if (~clock)
 		currentState <= nextState;//Latch new state
 end
@@ -78,7 +72,6 @@ begin
 	else
 	begin
 		unique case (currentState)
-			INITIAL_WAIT: nextState = INITIAL_FETCH;
 			INITIAL_FETCH, FETCH_EXECUTE:
 			begin
 				if (isTwoCycleInstruction)
@@ -110,7 +103,7 @@ end
 always_comb
 begin
 	unique case (currentState)
-		INITIAL_WAIT, INITIAL_FETCH, HALT:
+		default://INITIAL_FETCH, HALT, and invalid states (which will become HALT next state)
 		begin
 			//RegisterFile
 			rdWriteEnable = 1'b0;
@@ -124,10 +117,7 @@ begin
 			//ProgramCounter
 			programCounterWriteEnable = 1'b0;
 			//InstructionAddressMux
-			if (currentState == INITIAL_FETCH)
-				instructionAddressSource = CURRENT_PC;//Only difference
-			else//INITIAL_WAIT or HALT
-				instructionAddressSource = InstructionAddressSource_t'('x);
+			instructionAddressSource = CURRENT_PC;//Only matters for INITIAL_FETCH, not HALT
 			//ALU
 			opImm = 1'bx;
 			//ImmediateFormer
