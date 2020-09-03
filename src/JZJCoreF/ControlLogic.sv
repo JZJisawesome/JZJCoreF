@@ -178,7 +178,114 @@ begin
 					controlError = 1'b0;
 					stop = 1'b0;
 				end
-				//todo: other instructions
+				7'b11011xx://jal
+				begin
+					//RegisterFile
+					rdWriteEnable = 1'b1;//Latch rd (next sequential pc)
+					//MemoryController
+					memoryMode = NOP;
+					//RDInputChooser
+					memoryOutputEnable = 1'b0;
+					aluOutputEnable = 1'b0;
+					immediateFormerOutputEnable = 1'b0;
+					branchALUOutputEnable = 1'b1;//Get rd from BranchALU
+					//ALU
+					opImm = 1'bx;
+					//ImmediateFormer
+					immediateFormerMode = ImmediateFormerMode_t'('x);
+					//BranchALU
+					branchALUMode = JAL;//Go to new location
+					
+					controlError = 1'b0;
+					stop = 1'b0;
+				end
+				7'b11001xx://jalr
+				begin
+					//RegisterFile
+					rdWriteEnable = 1'b1;//Latch rd (next sequential pc)
+					//MemoryController
+					memoryMode = NOP;
+					//RDInputChooser
+					memoryOutputEnable = 1'b0;
+					aluOutputEnable = 1'b0;
+					immediateFormerOutputEnable = 1'b0;
+					branchALUOutputEnable = 1'b1;//Get rd from BranchALU
+					//ALU
+					opImm = 1'bx;
+					//ImmediateFormer
+					immediateFormerMode = ImmediateFormerMode_t'('x);
+					//BranchALU
+					branchALUMode = JALR;//Go to new location
+					
+					controlError = 1'b0;
+					stop = 1'b0;
+				end
+				7'b11000xx://branch instructions
+				begin
+					//RegisterFile
+					rdWriteEnable = 1'b0;
+					//MemoryController
+					memoryMode = NOP;
+					//RDInputChooser
+					memoryOutputEnable = 1'bx;
+					aluOutputEnable = 1'bx;
+					immediateFormerOutputEnable = 1'bx;
+					branchALUOutputEnable = 1'bx;
+					//ALU
+					opImm = 1'bx;
+					//ImmediateFormer
+					immediateFormerMode = ImmediateFormerMode_t'('x);
+					//BranchALU
+					branchALUMode = BRANCH;//Go to new location, or next sequential pc if branch is false
+					
+					controlError = 1'b0;
+					stop = 1'b0;
+				end
+				//todo: memory load instructions**************************************************************
+				//todo: memory store instructions**************************************************************
+				7'b00100xx://OP-IMM alu instructions
+				begin
+					//RegisterFile
+					rdWriteEnable = 1'b1;//Save alu result
+					//MemoryController
+					memoryMode = NOP;
+					//RDInputChooser
+					memoryOutputEnable = 1'b0;
+					aluOutputEnable = 1'b1;//Output alu result
+					immediateFormerOutputEnable = 1'b0;
+					branchALUOutputEnable = 1'b0;
+					//ALU
+					opImm = 1'b1;//Is an OP-IMM type instruction
+					//ImmediateFormer
+					immediateFormerMode = ImmediateFormerMode_t'('x);
+					//BranchALU
+					branchALUMode = INCREMENT;//Go to next sequential pc
+					
+					controlError = 1'b0;
+					stop = 1'b0;
+				end
+				7'b01100xx://Register-Register alu instructions
+				begin
+					//RegisterFile
+					rdWriteEnable = 1'b1;//Save alu result
+					//MemoryController
+					memoryMode = NOP;
+					//RDInputChooser
+					memoryOutputEnable = 1'b0;
+					aluOutputEnable = 1'b1;//Output alu result
+					immediateFormerOutputEnable = 1'b0;
+					branchALUOutputEnable = 1'b0;
+					//ALU
+					opImm = 1'b0;//Is not an OP-IMM type instruction
+					//ImmediateFormer
+					immediateFormerMode = ImmediateFormerMode_t'('x);
+					//BranchALU
+					branchALUMode = INCREMENT;//Go to next sequential pc
+					
+					controlError = 1'b0;
+					stop = 1'b0;
+				end
+				//todo: fence/ifencei, ecall, ebreak******************************************************
 				default:
 				begin
 					//RegisterFile
