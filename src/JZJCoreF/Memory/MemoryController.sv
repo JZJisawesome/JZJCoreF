@@ -1,11 +1,14 @@
-import JZJCoreFTypes::MemoryMode_t;
+import JZJCoreFTypes::*;
 
 import EndiannessFunctions::toBigEndian32;
 import EndiannessFunctions::toLittleEndian32;
 import EndiannessFunctions::toBigEndian16;
 import EndiannessFunctions::toLittleEndian16;
 
-import BitExtensionFunctions::*;//todo specify only needed members
+import BitExtensionFunctions::signExtend16To32;
+import BitExtensionFunctions::signExtend8To32;
+import BitExtensionFunctions::zeroExtend16To32;
+import BitExtensionFunctions::zeroExtend8To32;
 
 module MemoryController//2.5 port memory: 1 read port for instruction fetching, 1 read/write port for data loads/stores
 #(

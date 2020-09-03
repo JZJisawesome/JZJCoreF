@@ -1,4 +1,4 @@
-import JZJCoreFTypes::ImmediateFormerMode_t;
+import JZJCoreFTypes::*;
 
 module ImmediateFormer
 (

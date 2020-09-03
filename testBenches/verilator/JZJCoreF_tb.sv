@@ -1,4 +1,4 @@
-//`timescale 1ns/1ps
+//`timescale 1ns/1ps//if this was here, verilator would require all other modules have it and I don't know what values make sense/it's a pain to put that in each file
 module JZJCoreF_tb
 (
     input logic clock//toggled by verilator

@@ -1,10 +1,4 @@
-import JZJCoreFTypes::*;//todo specify only needed members
-
-//breaks verilator
-//import JZJCoreFTypes::InstructionFormerMode_t;
-//import JZJCoreFTypes::BranchALUMode_t;
-//import JZJCoreFTypes::MemoryMode_t;
-//import JZJCoreFTypes::InstructionAddressSource_t;
+import JZJCoreFTypes::*;
 
 module ControlLogic
 (
@@ -97,9 +91,9 @@ end
 always_comb
 begin
 	//unique case (opcode) inside//Quartus Prime does not support case inside
-	unique casex (opcode)//Forced to do this instead
-		7'b00000xx: isTwoCycleInstruction = 1'b1;//load instructions
-		7'b01000xx: isTwoCycleInstruction = funct3 != 3'b010;//store instructions other than sw
+	unique casez (opcode)//Forced to do this instead
+		7'b00000??: isTwoCycleInstruction = 1'b1;//load instructions
+		7'b01000??: isTwoCycleInstruction = funct3 != 3'b010;//store instructions other than sw
 		default: isTwoCycleInstruction = 1'b0;//Either the instruction only takes 1 cycle, or this is a bad opcode, in which case it is handled by Control Line Logic section
 	endcase
 end
@@ -143,8 +137,8 @@ begin
 			programCounterWriteEnable = 1'b1;
 			
 			//unique case (opcode) inside//Quartus Prime does not support case inside
-			unique casex (opcode)//Forced to do this instead
-				7'b01101xx://lui
+			unique casez (opcode)//Forced to do this instead
+				7'b01101??://lui
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save lui value
@@ -165,7 +159,7 @@ begin
 					controlError = 1'b0;
 					stop = 1'b0;
 				end
-				7'b00101xx://auipc
+				7'b00101??://auipc
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save auipc value
@@ -186,7 +180,7 @@ begin
 					controlError = 1'b0;
 					stop = 1'b0;
 				end
-				7'b11011xx://jal
+				7'b11011??://jal
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Latch rd (next sequential pc)
@@ -207,7 +201,7 @@ begin
 					controlError = 1'b0;
 					stop = 1'b0;
 				end
-				7'b11001xx://jalr
+				7'b11001??://jalr
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Latch rd (next sequential pc)
@@ -228,7 +222,7 @@ begin
 					controlError = 1'b0;
 					stop = 1'b0;
 				end
-				7'b11000xx://branch instructions
+				7'b11000??://branch instructions
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b0;
@@ -249,7 +243,7 @@ begin
 					controlError = 1'b0;
 					stop = 1'b0;
 				end
-				7'b00000xx://load instructions
+				7'b00000??://load instructions
 				begin//This happens second
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Latch the value at the address
@@ -270,7 +264,7 @@ begin
 					controlError = 1'b0;
 					stop = 1'b0;
 				end
-				7'b01000xx://store instructions
+				7'b01000??://store instructions
 				begin//This happens second (or is the only step for sw)
 					//RegisterFile
 					rdWriteEnable = 1'b0;
@@ -291,7 +285,7 @@ begin
 					controlError = 1'b0;
 					stop = 1'b0;
 				end
-				7'b00100xx://OP-IMM alu instructions
+				7'b00100??://OP-IMM alu instructions
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save alu result
@@ -312,7 +306,7 @@ begin
 					controlError = 1'b0;
 					stop = 1'b0;
 				end
-				7'b01100xx://Register-Register alu instructions
+				7'b01100??://Register-Register alu instructions
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save alu result
@@ -333,7 +327,7 @@ begin
 					controlError = 1'b0;
 					stop = 1'b0;
 				end
-				7'b00011xx://fence/fence.i
+				7'b00011??://fence/fence.i
 				begin//Acts as a nop
 					//RegisterFile
 					rdWriteEnable = 1'b0;
@@ -354,7 +348,7 @@ begin
 					controlError = 1'b0;
 					stop = 1'b0;
 				end
-				7'b11100xx://ecall/ebreak
+				7'b11100??://ecall/ebreak
 				begin//Acts as a fatal trap (on purpose); nice way to stop cpu
 					//RegisterFile
 					rdWriteEnable = 1'b0;
@@ -413,8 +407,8 @@ begin
 			branchALUMode = BranchALUMode_t'('x);
 			
 			//unique case (opcode) inside//Quartus Prime does not support case inside
-			unique casex (opcode)//Forced to do this instead
-				7'b00000xx://load instructions
+			unique casez (opcode)//Forced to do this instead
+				7'b00000??://load instructions
 				begin//This happens first
 					//RegisterFile
 					rdWriteEnable = 1'b0;//Don't need to write to the register yet, and can't mess up the value in the mean time because MemoryController might be referencing rs1
@@ -429,7 +423,7 @@ begin
 					controlError = 1'b0;
 					stop = 1'b0;
 				end
-				7'b01000xx://store instructions
+				7'b01000??://store instructions
 				begin//This happens first (only needed for sb and sh)
 					//RegisterFile
 					rdWriteEnable = 1'b0;

@@ -25,6 +25,7 @@ module MemoryBackend
 
 //TODO in the future, addressing logic for switching between mmio and ram
 
+//temporary
 InferredRAM #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) inferredRamTemp(.*, .writeAddress(backendAddress), .dataIn(backendDataIn),
 																																		.writeEnable(backendWriteEnable), .readAddressA(backendAddress),
 																																		.dataOutA(backendDataOut), .readAddressB(backendInstructionAddress),

@@ -1,4 +1,4 @@
-import JZJCoreFTypes::*;//todo specify only needed members
+import JZJCoreFTypes::*;
 
 module JZJCoreF
 #(

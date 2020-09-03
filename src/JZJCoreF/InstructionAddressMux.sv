@@ -1,4 +1,4 @@
-import JZJCoreFTypes::InstructionAddressSource_t;
+import JZJCoreFTypes::*;
 
 module InstructionAddressMux
 (

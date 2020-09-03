@@ -1,4 +1,4 @@
-import JZJCoreFTypes::BranchALUMode_t;
+import JZJCoreFTypes::*;
 
 module BranchALU
 (

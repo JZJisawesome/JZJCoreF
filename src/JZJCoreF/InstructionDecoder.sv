@@ -1,4 +1,4 @@
-import JZJCoreFTypes::DecodedAddresses;
+import JZJCoreFTypes::*;
 
 module InstructionDecoder
 (
