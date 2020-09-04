@@ -33,10 +33,9 @@ module ControlLogic
 );
 /* Primitives */
 logic halt;//Next state should be state halt
-logic controlError;//Bad opcode or something similar 
 logic stop;//ecall/ebreak is signaling core to halt
 logic branchALUBadFunct3;//same as branchALUBadBRANCHFunct3 but only when the opcode is BRANCH
-assign halt = programCounterMisaligned | memoryUnalignedAccess | memoryBadFunct3 | controlError | stop;
+assign halt = programCounterMisaligned | memoryUnalignedAccess | memoryBadFunct3 | stop;
 
 logic isTwoCycleInstruction;//Updated on posedge after state change to determine next state change
 
@@ -90,30 +89,33 @@ begin
 	unique case (opcode)
 		7'b0000011: isTwoCycleInstruction = 1'b1;//load instructions
 		7'b0100011: isTwoCycleInstruction = funct3 != 3'b010;//store instructions other than sw
-		default: isTwoCycleInstruction = 1'b0;//Either the instruction only takes 1 cycle, or this is a bad opcode, in which case it is handled by Control Line Logic section
+		default: isTwoCycleInstruction = 1'b0;//Either the instruction only takes 1 cycle, or this is a bad opcode so this value dosen't matter
 	endcase
 end
 
 /* Control Line Logic */
-//Also handles controlError and stop
+//Also handles stop for ecall/ebreak
 always_comb
 begin
 	unique case (currentState)
 		default://INITIAL_FETCH, HALT, and invalid states (which will become HALT next state)
 		begin
 			//RegisterFile
-			rdWriteEnable = 1'b0;
+			rdWriteEnable = 1'b0;//Do not affect register state
 			//MemoryController
-			memoryMode = NOP;
+			memoryMode = NOP;//Do not affect memory state
 			//RDInputChooser
 			rdSourceSelectLines.memoryOutputEnable = 1'bx;
 			rdSourceSelectLines.aluOutputEnable = 1'bx;
 			rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
 			rdSourceSelectLines.branchALUOutputEnable = 1'bx;
 			//ProgramCounter
-			programCounterWriteEnable = 1'b0;
+			programCounterWriteEnable = 1'b0;//Do not affect program counter state
 			//InstructionAddressMux
-			instructionAddressSource = CURRENT_PC;//Only matters for INITIAL_FETCH, not HALT
+			if (currentState == INITIAL_FETCH)
+				instructionAddressSource = CURRENT_PC;
+			else
+				instructionAddressSource = InstructionAddressSource_t'('x);//Halted, so this dosen't matter
 			//ALU
 			opImm = 1'bx;
 			//ImmediateFormer
@@ -122,15 +124,9 @@ begin
 			branchALUMode = BranchALUMode_t'('x);
 			
 			if (currentState == INITIAL_FETCH)
-			begin
-				controlError = 1'b0;
 				stop = 1'b0;
-			end
 			else
-			begin
-				controlError = 1'bx;
-				stop = 1'bx;
-			end
+				stop = 1'bx;//Halted, so this dosen't matter
 		end
 		FETCH_EXECUTE:
 		begin
@@ -155,7 +151,6 @@ begin
 			//BranchALU
 			branchALUMode = INCREMENT;//Go to next sequential pc
 			
-			controlError = 1'b0;
 			stop = 1'b0;
 			
 			//Instruction specific settings
@@ -256,7 +251,7 @@ begin
 				end
 				7'b0001111: begin end//fence/fence.i (Acts as a nop)
 				7'b1110011://ecall/ebreak
-				begin//Acts as a fatal trap (on purpose); nice way to stop cpu
+				begin//Causes clean termination of the cpu (on purpose); the only implemented requested trap
 					//ProgramCounter
 					programCounterWriteEnable = 1'b0;//Avoid messing up state; we are stopping cleanly
 					//InstructionAddressMux
@@ -264,11 +259,10 @@ begin
 					//BranchALU
 					branchALUMode = BranchALUMode_t'('x);
 					
-					controlError = 1'bx;
-					stop = 1'b1;//Fatal trap
+					stop = 1'b1;//Requested trap halts cpu cleanly (does not affect register, pc, or memory state)
 				end
 				default://Bad opcode
-				begin//Unlike ecall/ebreaks, we are shutting down hard without care for cpu state
+				begin//Error occured; anything goes now
 					//RegisterFile
 					rdWriteEnable = 1'bx;
 					//MemoryController
@@ -280,7 +274,6 @@ begin
 					//BranchALU
 					branchALUMode = BranchALUMode_t'('x);
 					
-					controlError = 1'b1;//Bad opcode
 					stop = 1'bx;
 				end
 			endcase
@@ -308,7 +301,6 @@ begin
 			//BranchALU
 			branchALUMode = BranchALUMode_t'('x);
 			
-			controlError = 1'b0;
 			stop = 1'b0;
 			
 			//Instruction specific settings
@@ -324,7 +316,7 @@ begin
 					memoryMode = STORE_PRELOAD;//Fetch the old value from the address in memory to modify + write back in the second cycle
 				end
 				default://Bad opcode for a 2 cycle instruction
-				begin//We are shutting down hard without care for cpu state
+				begin//Error occured; anything goes now
 					//RegisterFile
 					rdWriteEnable = 1'bx;
 					//MemoryController
@@ -334,7 +326,6 @@ begin
 					//InstructionAddressMux
 					instructionAddressSource = InstructionAddressSource_t'('x);
 					
-					controlError = 1'b1;
 					stop = 1'bx;
 				end
 			endcase
