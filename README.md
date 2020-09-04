@@ -66,7 +66,7 @@ Store word instructions take only 1 cycle because they don't care about existing
 |Zifencei|
 | fence.i | 1 |
 
-## JZJCoreF EEI
+## JZJCore EEI
 
 ### Initial Register Values
 
