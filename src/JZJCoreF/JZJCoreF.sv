@@ -10,12 +10,7 @@ module JZJCoreF
 	input logic clock, reset,
 	
 	//Memory Mapped Ports
-	//Note that reads and writes are written to the addresses in little endian format
-	//then converted back to be output / vise-versa for inputs
-	//This makes it so for reads rd[0] = portXMemoryAddress[24] = mmioInputs[X][0]
-	//and for writes............rs2[0] = portXMemoryAddress[24] = mmioOutputs[X][0]
-	//My recomendation is therefore that ports are accessed whole words at a time
-	//but if you keep the little endian -> big endian format in mind you can write half words or bytes
+	//Must be read/written in words
 	//Reads from the address read from the input, writes write to the output
 	//mmioInputs [7:0] and mmioOutputs [7:0] are at byte-wise memory addresses [FFFFFFE0:FFFFFFFC] (each are 4 bytes)
 	input logic [31:0] mmioInputs [8],
