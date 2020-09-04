@@ -28,14 +28,13 @@ module ControlLogic
 	
 	/* Error Flags */
 	input logic programCounterMisaligned,
-	input logic memoryUnalignedAccess,
-	input logic memoryBadFunct3
+	input logic memoryUnalignedAccess
 );
 /* Primitives */
 logic halt;//Next state should be state halt
 logic stop;//ecall/ebreak is signaling core to halt
 logic branchALUBadFunct3;//same as branchALUBadBRANCHFunct3 but only when the opcode is BRANCH
-assign halt = programCounterMisaligned | memoryUnalignedAccess | memoryBadFunct3 | stop;
+assign halt = programCounterMisaligned | memoryUnalignedAccess | stop;
 
 logic isTwoCycleInstruction;//Updated on posedge after state change to determine next state change
 

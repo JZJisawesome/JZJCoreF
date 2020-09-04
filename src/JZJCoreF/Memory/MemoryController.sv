@@ -37,9 +37,8 @@ module MemoryController
 	input logic [31:0] instructionAddressToAccess,
 	output logic [31:0] instruction,
 	
-	//Error Flags
+	//Error Flag
 	output logic memoryUnalignedAccess,
-	output logic memoryBadFunct3,
 	
 	//Memory Mapped Ports
 	//mmioInputs [7:0] and mmioOutputs [7:0] are at byte-wise memory addresses [FFFFFFE0:FFFFFFFC] (each are 4 bytes (1 word) wide)
@@ -83,7 +82,7 @@ assign offset = addressToAccess[1:0];
 //Should be nested module but Quartus Prime does not support them :(
 MemoryControllerLOADProcessor memoryControllerLOADProcessor(.*);
 MemoryControllerSTOREProcessor memoryControllerSTOREProcessor(.*);
-MemoryControllerErrorDetector errorDetector(.*);
+MemoryControllerUnalignmentDetector unalignmentDetector(.*);
 
 //External
 MemoryBackend #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) memoryBackend(.*);
@@ -191,16 +190,15 @@ endfunction
 endmodule: MemoryControllerSTOREProcessor
 
 //Should be nested but Quartus Prime does not support nested modules :(
-module MemoryControllerErrorDetector
+module MemoryControllerUnalignmentDetector
 (
 	//Inputs
 	input MemoryMode_t memoryMode,
 	input logic [2:0] funct3,
 	input logic [1:0] offset,
 	
-	//Error Flags
-	output logic memoryUnalignedAccess,
-	output logic memoryBadFunct3
+	//Error Flag
+	output logic memoryUnalignedAccess
 );
 
 //Unaligned Access Detection
@@ -221,15 +219,4 @@ begin
 	endcase
 end
 
-//Bad Funct3 Detection
-always_comb
-begin
-	unique case (memoryMode)
-		LOAD: memoryBadFunct3 = (funct3 == 3'b011) || (funct3 == 3'b110)|| (funct3 == 3'b111);//None of these funct3s exist
-		STORE_PRELOAD, STORE: memoryBadFunct3 = !((funct3 == 3'b000) || (funct3 == 3'b001)|| (funct3 == 3'b010));//Only these 3 funct3s exist
-		NOP: memoryBadFunct3 = 1'b0;//Not executing an instruction
-		default: memoryBadFunct3 = 1'bx;//Something is not right; bad enum
-	endcase
-end
-
-endmodule: MemoryControllerErrorDetector
+endmodule: MemoryControllerUnalignmentDetector

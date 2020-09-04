@@ -82,11 +82,13 @@ JZJCoreF contains no interrupt controller or interrupt/exception vector. All exc
 
 ### Memory Map
 
-Note: Addresses in the table below are inclusive and a read/write to an unmapped address will cause undefined behaviour. Execution is only supported within the RAM Start and RAM End addresses, and undefined behaviour will occur if an instruction is fetched from outside that region.
+Note: Addresses in the table below are inclusive and a read/write to an unmapped address will cause undefined behaviour. Execution is only supported within the RAM Start and RAM End addresses, undefined behaviour will occur if an instruction is fetched from outside that region, and a misaligned control transfer instruction will cause a fatal trap.
 
 Since JZJCoreE, memory mapped IO registers function differently. There are no more direction registers, only port registers. Writes to a memory mapped io address write to mmioOutputs[X], and reads read from mmioInputs[X]. A register must be dedicated to an external tristate logic controller if desired, and if feedback is desired then pins in mmioInputs should be connected directly to the respective mmioOutputs pins. Connections to the ports from or to other clock domains require synchronizers or asynchronous FIFOs. This new scheme allows for greater flexibility with external devices and modules, while still allowing for high speed communication between modules in the same clock domain.
 
 Memory Mapped IO registers must be read/written 1 word at a time, otherwise read-modify-write behaviour and endianness could break things. However, if you are careful and inspect MemoryMappedIO.sv/MemoryController.sv, you can read/write halfwords and bytes (but you might need feedback between the inputs and outputs). RAM addresses may be accessed with any load/store instruction.
+
+All memory accesses must be aligned (to 4 bytes boundaries for word accesses, and to 2 byte boundaries for halfword accesses), or else will cause a fatal trap.
 
 At power-on, the RAM addresses are loaded with the contents of the file INITIAL_MEM_CONTENTS, and all memory mapped IO output registers contain the value 32'h00000000. At reset, the memory mapped IO output registers return to 32'h00000000, but RAM is NOT RELOADED.
 
