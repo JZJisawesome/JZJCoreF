@@ -10,7 +10,7 @@ import BitExtensionFunctions::signExtend8To32;
 import BitExtensionFunctions::zeroExtend16To32;
 import BitExtensionFunctions::zeroExtend8To32;
 
-module MemoryController//2.5 port memory: 1 read port for instruction fetching, 1 read/write port for data loads/stores
+module MemoryController
 #(
 	parameter INITIAL_MEM_CONTENTS = "initialRam.mem",
 	parameter RAM_A_WIDTH = 12
@@ -19,7 +19,7 @@ module MemoryController//2.5 port memory: 1 read port for instruction fetching, 
 	input logic clock, reset,
 	
 	//Memory Mode and Control
-	input MemoryMode_t memoryMode,//NOP will not allow error flags to be set
+	input MemoryMode_t memoryMode,//LOAD, STORE_PREFETCH, and NOP do not alter any internal states, but only NOP will never set error flags 
 	input logic [2:0] funct3,
 	
 	//Addressing
@@ -42,7 +42,7 @@ module MemoryController//2.5 port memory: 1 read port for instruction fetching, 
 	output logic memoryBadFunct3,
 	
 	//Memory Mapped Ports
-	//mmioInputs [7:0] and mmioOutputs [7:0] are at byte-wise memory addresses [FFFFFFE0:FFFFFFFC] (each are 4 bytes)
+	//mmioInputs [7:0] and mmioOutputs [7:0] are at byte-wise memory addresses [FFFFFFE0:FFFFFFFC] (each are 4 bytes (1 word) wide)
 	input logic [31:0] mmioInputs [8],
 	output reg [31:0] mmioOutputs [8]
 );

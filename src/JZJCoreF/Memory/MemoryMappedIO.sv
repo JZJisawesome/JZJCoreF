@@ -21,7 +21,7 @@ logic [2:0] portNumber;
 assign portNumber = backendAddress[2:0];
 
 //Read Logic
-assign mmioDataOut = toLittleEndian32(mmioInputs[portNumber]);//Low 3 bits select inputs
+assign mmioDataOut = toLittleEndian32(mmioInputs[portNumber]);//Need to convert to little endian because MemoryController will then convert back to big endian
 
 //Write Logic
 always_ff @(posedge clock, posedge reset)
@@ -34,7 +34,7 @@ begin
 	else if (clock)
 	begin
 		if (mmioWriteEnable)
-			mmioOutputs[portNumber] <= toBigEndian32(backendDataIn);//Write to output register
+			mmioOutputs[portNumber] <= toBigEndian32(backendDataIn);//backendDataIn is little endian, so it needs to be converted then latched
 	end
 end
 
