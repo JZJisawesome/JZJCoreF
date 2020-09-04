@@ -38,7 +38,7 @@ module MemoryController
 	output logic [31:0] instruction,
 	
 	//Error Flag
-	output logic memoryUnalignedAccess,
+	output ErrorFlag_t memoryUnalignedAccess,
 	
 	//Memory Mapped Ports
 	//mmioInputs [7:0] and mmioOutputs [7:0] are at byte-wise memory addresses [FFFFFFE0:FFFFFFFC] (each are 4 bytes (1 word) wide)
@@ -54,7 +54,7 @@ logic [31:0] addressToAccess;
 logic [29:0] backendAddress;
 logic [31:0] backendDataOut;
 logic [31:0] backendDataIn;
-logic backendWriteEnable;
+WriteEnable_t backendWriteEnable;
 logic [29:0] backendInstructionAddress;
 logic [31:0] instructionLittleEndian;
 

@@ -1,3 +1,5 @@
+import JZJCoreFTypes::*;
+
 module MemoryBackend
 #(
 	parameter INITIAL_MEM_CONTENTS = "initialRam.mem",
@@ -14,7 +16,7 @@ module MemoryBackend
 	
 	//Write Port
 	input logic [31:0] backendDataIn,
-	input logic backendWriteEnable,
+	input WriteEnable_t backendWriteEnable,
 	
 	//Instruction Fetch (only from RAM)
 	input logic [29:0] backendInstructionAddress,
@@ -28,8 +30,8 @@ module MemoryBackend
 /* Primitives */
 logic [31:0] mmioDataOut;
 logic [31:0] ramDataOut;
-logic mmioWriteEnable;
-logic ramWriteEnable;
+WriteEnable_t mmioWriteEnable;
+WriteEnable_t ramWriteEnable;
 
 /* backendDataOut Multiplexing and ramWriteEnable/mmioWriteEnable Control */
 always_comb
@@ -53,6 +55,6 @@ end
 MemoryMappedIO memoryMappedIO(.*);
 
 InferredRAM #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) inferredRam
-				 (.*, .writeAddress(backendAddress), .dataIn(backendDataIn), .writeEnable(ramWriteEnable), .readAddressA(backendAddress), .dataOutA(ramDataOut),
+				 (.*, .writeAddress(backendAddress), .dataIn(backendDataIn), .writeEnable(logic'(ramWriteEnable)), .readAddressA(backendAddress), .dataOutA(ramDataOut),
 				 .readAddressB(backendInstructionAddress), .dataOutB(instructionLittleEndian));
 endmodule 

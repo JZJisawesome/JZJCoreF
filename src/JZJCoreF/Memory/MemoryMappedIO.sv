@@ -1,3 +1,5 @@
+import JZJCoreFTypes::*;
+
 import EndiannessFunctions::toBigEndian32;
 import EndiannessFunctions::toLittleEndian32;
 
@@ -9,7 +11,7 @@ module MemoryMappedIO
 	input logic [29:0] backendAddress,
 	output logic [31:0] mmioDataOut,
 	input logic [31:0] backendDataIn,
-	input logic mmioWriteEnable,
+	input WriteEnable_t mmioWriteEnable,
 	
 	//Memory Mapped Ports
 	//mmioInputs [7:0] and mmioOutputs [7:0] are at word-wise memory addresses [3FFFFFF8:3FFFFFFF]

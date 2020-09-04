@@ -31,7 +31,7 @@ DecodedAddresses_t decodedAddresses;
 logic [31:0] rs1, rs2;
 //Writing
 logic [31:0] rd;//If a module is not writing to rd, then control should set its output to '0 (yes I know I should be using a priority encoder but this is nicer readability wise; I have to test the performance at some point)
-logic rdWriteEnable;
+WriteEnable_t rdWriteEnable;
 
 //MemoryController
 MemoryMode_t memoryMode;
@@ -52,7 +52,7 @@ RDSourceSelectLines_t rdSourceSelectLines;
 
 //ProgramCounter
 logic [31:0] programCounterInput;
-logic programCounterWriteEnable;
+WriteEnable_t programCounterWriteEnable;
 logic [31:0] pcOfInstruction;
 
 //InstructionAddressMux
@@ -74,9 +74,8 @@ logic [31:0] branchALUOutput;
 //Control Logic
 Opcode_t opcode;
 //Error Flags
-logic programCounterMisaligned;
-logic memoryUnalignedAccess;
-logic memoryBadFunct3;
+ErrorFlag_t programCounterMisaligned;
+ErrorFlag_t memoryUnalignedAccess;
 
 /* Modules */
 

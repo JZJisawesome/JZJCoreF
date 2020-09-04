@@ -3,6 +3,8 @@ package JZJCoreFTypes;
 	typedef logic [6:0] Opcode_t;//todo maybe this should be made into a enum; see the comments in the Enums section
 	typedef logic [2:0] Funct3_t;
 	typedef logic [6:0] Funct7_t;
+	typedef logic WriteEnable_t;
+	typedef logic ErrorFlag_t;
 
 	/* Enums */
 	typedef enum logic {LUI, AUIPC} ImmediateFormerMode_t;
@@ -12,7 +14,7 @@ package JZJCoreFTypes;
 	typedef enum logic {REGISTER, OP_IMM} ALUMode_t;
 	
 	//Todo add opcode type (prefix enum type names with OPCODE_ to avoid conflicts with above enums)
-	//I tried to add it before, but curiously it slowed things down significantly
+	//I tried to add it before, but curiously it slowed things down significantly (by about 2mhz because it compared all of the bits instead of using a decoder)
 	//todo try again at some point
 	
 	/* Structs */

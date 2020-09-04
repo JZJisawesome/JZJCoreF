@@ -10,10 +10,10 @@ module ProgramCounter
 	
 	//Write Port
 	input logic  [31:0] programCounterInput,//Latched on the positive edge when programCounterWriteEnable is asserted
-	input logic programCounterWriteEnable,
+	input WriteEnable_t programCounterWriteEnable,
 	
 	//Error Flag
-	output logic programCounterMisaligned
+	output ErrorFlag_t programCounterMisaligned
 );
 /* Primitives */
 reg [31:0] programCounter = RESET_VECTOR;

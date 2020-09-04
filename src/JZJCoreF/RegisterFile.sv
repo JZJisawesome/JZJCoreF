@@ -13,7 +13,7 @@ module RegisterFile
 	
 	//Write Port
 	input logic [31:0] rd,
-	input logic rdWriteEnable
+	input WriteEnable_t rdWriteEnable
 );
 /* Primitives */
 

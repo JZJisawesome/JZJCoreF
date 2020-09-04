@@ -10,13 +10,13 @@ module ControlLogic
 	
 	/* Control Lines */
 	//RegisterFile
-	output logic rdWriteEnable,
+	output WriteEnable_t rdWriteEnable,
 	//MemoryController
 	output MemoryMode_t memoryMode,
 	//RDInputChooser
 	output RDSourceSelectLines_t rdSourceSelectLines,
 	//ProgramCounter
-	output logic programCounterWriteEnable,
+	output WriteEnable_t programCounterWriteEnable,
 	//InstructionAddressMux
 	output InstructionAddressSource_t instructionAddressSource,
 	//ALU
@@ -27,8 +27,8 @@ module ControlLogic
 	output BranchALUMode_t branchALUMode,
 	
 	/* Error Flags */
-	input logic programCounterMisaligned,
-	input logic memoryUnalignedAccess
+	input ErrorFlag_t programCounterMisaligned,
+	input ErrorFlag_t memoryUnalignedAccess
 );
 /* Primitives */
 logic halt;//Next state should be state halt
