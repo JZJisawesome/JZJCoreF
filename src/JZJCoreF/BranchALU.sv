@@ -21,7 +21,7 @@ module BranchALU
 	output logic [31:0] branchALUOutput,
 	
 	//Error Flag
-	output logic branchALUBadFunct3
+	output logic branchALUBadBRANCHFunct3
 );
 logic [31:0] nextSeqentialPC;
 logic [31:0] nextJALPC;
@@ -29,6 +29,7 @@ logic [31:0] nextJALRPC;
 logic [31:0] nextBranchPC;
 
 logic branchTaken;
+logic [31:0] nextJALRPCIntermediateValue;
 
 /* Output Multiplexing */
 
@@ -49,9 +50,11 @@ end
 
 /* PC Generation Logic */
 
+assign nextJALRPCIntermediateValue = rs1 + immediateI;
+
 assign nextSeqentialPC = pcOfInstruction + 4;
 assign nextJALPC = pcOfInstruction + immediateJ;
-assign nextJALRPC = rs1 + immediateI;
+assign nextJALRPC = {nextJALRPCIntermediateValue[31:1], 1'b0};//Low bit must be set to 0 after calculation
 assign nextBranchPC = pcOfInstruction + immediateB;
 
 /* Branch Comparison */
@@ -70,11 +73,11 @@ end
 
 /* Bad Funct3 Detection */
 always_comb
-begin
-	if ((branchALUMode == BRANCH) && ((funct3 == 3'b010) || (funct3 == 3'b011)))
-		branchALUBadFunct3 = 1'b1;
+begin//Assumes branchALUMode is BRANCH
+	if ((funct3 == 3'b010) || (funct3 == 3'b011))
+		branchALUBadBRANCHFunct3 = 1'b1;
 	else//Valid funct3
-		branchALUBadFunct3 = 1'b0;
+		branchALUBadBRANCHFunct3 = 1'b0;
 end
 
 endmodule

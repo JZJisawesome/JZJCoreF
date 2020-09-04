@@ -27,7 +27,7 @@ module ControlLogic
 	output BranchALUMode_t branchALUMode,
 	
 	/* Error Flags */
-	input logic branchALUBadFunct3,
+	input logic branchALUBadBRANCHFunct3,
 	input logic programCounterMisaligned,
 	input logic memoryUnalignedAccess,
 	input logic memoryBadFunct3
@@ -36,7 +36,8 @@ module ControlLogic
 logic halt;//Next state should be state halt
 logic controlError;//Bad opcode or something similar 
 logic stop;//ecall/ebreak is signaling core to halt
-assign halt = branchALUBadFunct3 | programCounterMisaligned | memoryUnalignedAccess | memoryBadFunct3 | controlError | stop;
+logic branchALUBadFunct3;//same as branchALUBadBRANCHFunct3 but only when the opcode is BRANCH
+assign halt = programCounterMisaligned | memoryUnalignedAccess | memoryBadFunct3 | controlError | stop;
 
 logic isTwoCycleInstruction;//Updated on posedge after state change to determine next state change
 
@@ -78,7 +79,7 @@ begin
 			end
 			EXECUTE: nextState = FETCH_EXECUTE;//Move to the second cycle of a 2 cycle instruction
 			HALT: nextState = HALT;//Spin forever
-			default: nextState = HALT;//Invalid state occured; halt core
+			default: nextState = HALT;//Invalid state; halt core
 		endcase
 	end
 end
@@ -333,6 +334,8 @@ begin
 					programCounterWriteEnable = 1'bx;
 					//InstructionAddressMux
 					instructionAddressSource = InstructionAddressSource_t'('x);
+					//BranchALU
+					branchALUMode = BranchALUMode_t'('x);
 					
 					controlError = 1'b1;
 					stop = 1'bx;
@@ -341,5 +344,9 @@ begin
 		end
 	endcase
 end
+
+/* Bad BranchALU Funct3 Selective Detection */
+//Can only listen to branchALUBadBRANCHFunct3 when opcode is BRANCH and state is FETCH_EXECUTE
+assign branchALUBadFunct3 = branchALUBadBRANCHFunct3 && (opcode == 7'b1100011) && currentState == FETCH_EXECUTE;
 
 endmodule 

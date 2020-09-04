@@ -10,7 +10,7 @@ module JZJCoreF
 	input logic clock, reset,
 	
 	//Memory Mapped Ports
-	//Must be read/written in a whole word at a time
+	//Must be read/written a whole word at a time
 	//Reads from the address read from mmioInputs, writes write to mmioOutputs
 	//mmioInputs [7:0] and mmioOutputs [7:0] are at byte-wise memory addresses [FFFFFFE0:FFFFFFFC] (each are 4 bytes (1 word) wide)
 	input logic [31:0] mmioInputs [8],
@@ -20,7 +20,7 @@ module JZJCoreF
 	//MAKE SURE INPUTS AND OUTPUTS ARE SYNCHRONIZED IF THEY ARE FROM/TO ANOTHER CLOCK DOMAIN
 	
 	//Output for legacy asembly test programs that output to register 31; for new software use memory mapped io instead
-	//Good for testing things before memory mapped io was implemented
+	//Used for testing things before memory mapped io was implemented
 	output logic [31:0] register31Output
 );
 /* Connections */
@@ -74,7 +74,7 @@ logic [31:0] branchALUOutput;
 //Control Logic
 logic [6:0] opcode;
 //Error Flags
-logic branchALUBadFunct3;
+logic branchALUBadBRANCHFunct3;
 logic programCounterMisaligned;
 logic memoryUnalignedAccess;
 logic memoryBadFunct3;
