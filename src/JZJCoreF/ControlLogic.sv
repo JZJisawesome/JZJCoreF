@@ -41,14 +41,14 @@ assign halt = branchALUBadFunct3 | programCounterMisaligned | memoryUnalignedAcc
 
 logic isTwoCycleInstruction;//Updated on posedge after state change to determine next state change
 
-//State Machine
+//State machine things
 typedef enum logic [3:0]
-{
+{//One-hot encoding
 	INITIAL_FETCH = 4'b0001,
 	FETCH_EXECUTE = 4'b0010,
 	EXECUTE = 4'b0100,
 	HALT = 4'b1000
-} State_t;//todo make sure this is onehot
+} State_t;
 State_t currentState = INITIAL_FETCH, nextState;
 
 /* State Machine Logic */
@@ -123,16 +123,42 @@ begin
 			//BranchALU
 			branchALUMode = BranchALUMode_t'('x);
 			
-			controlError = 1'b0;
-			stop = 1'b0;
+			if (currentState == INITIAL_FETCH)
+			begin
+				controlError = 1'b0;
+				stop = 1'b0;
+			end
+			else
+			begin
+				controlError = 1'bx;
+				stop = 1'bx;
+			end
 		end
 		FETCH_EXECUTE:
 		begin
-			//Things that are the same for all instructions
-			//InstructionAddressMux
-			instructionAddressSource = NEXT_PC;//Note that for other modules the current instruction is still used, this is just for memory fetching
+			//Defaults for control signals; changed for the specific instruction by the case statement
+			//RegisterFile
+			rdWriteEnable = 1'b0;
+			//MemoryController
+			memoryMode = NOP;
+			//RDInputChooser
+			rdSourceSelectLines.memoryOutputEnable = 1'bx;
+			rdSourceSelectLines.aluOutputEnable = 1'bx;
+			rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
+			rdSourceSelectLines.branchALUOutputEnable = 1'bx;
 			//ProgramCounter
 			programCounterWriteEnable = 1'b1;
+			//InstructionAddressMux
+			instructionAddressSource = NEXT_PC;//Note that for other modules the current instruction is still used, this is just for memory fetching
+			//ALU
+			opImm = 1'bx;
+			//ImmediateFormer
+			immediateFormerMode = ImmediateFormerMode_t'('x);
+			//BranchALU
+			branchALUMode = INCREMENT;//Go to next sequential pc
+			
+			controlError = 1'b0;
+			stop = 1'b0;
 			
 			//unique case (opcode) inside//Quartus Prime does not support case inside
 			unique casez (opcode)//Forced to do this instead
@@ -140,106 +166,54 @@ begin
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save lui value
-					//MemoryController
-					memoryMode = NOP;
 					//RDInputChooser
 					rdSourceSelectLines.memoryOutputEnable = 1'b0;
 					rdSourceSelectLines.aluOutputEnable = 1'b0;
 					rdSourceSelectLines.immediateFormerOutputEnable = 1'b1;//Get lui value
 					rdSourceSelectLines.branchALUOutputEnable = 1'b0;
-					//ALU
-					opImm = 1'bx;
 					//ImmediateFormer
 					immediateFormerMode = LUI;//Generate lui value
-					//BranchALU
-					branchALUMode = INCREMENT;//Go to next sequential pc
-					
-					controlError = 1'b0;
-					stop = 1'b0;
 				end
 				7'b00101??://auipc
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save auipc value
-					//MemoryController
-					memoryMode = NOP;
 					//RDInputChooser
 					rdSourceSelectLines.memoryOutputEnable = 1'b0;
 					rdSourceSelectLines.aluOutputEnable = 1'b0;
 					rdSourceSelectLines.immediateFormerOutputEnable = 1'b1;//Get auipc value
 					rdSourceSelectLines.branchALUOutputEnable = 1'b0;
-					//ALU
-					opImm = 1'bx;
 					//ImmediateFormer
 					immediateFormerMode = AUIPC;//Generate auipc value
-					//BranchALU
-					branchALUMode = INCREMENT;//Go to next sequential pc
-					
-					controlError = 1'b0;
-					stop = 1'b0;
 				end
 				7'b11011??://jal
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Latch rd (next sequential pc)
-					//MemoryController
-					memoryMode = NOP;
 					//RDInputChooser
 					rdSourceSelectLines.memoryOutputEnable = 1'b0;
 					rdSourceSelectLines.aluOutputEnable = 1'b0;
 					rdSourceSelectLines.immediateFormerOutputEnable = 1'b0;
 					rdSourceSelectLines.branchALUOutputEnable = 1'b1;//Get rd from BranchALU
-					//ALU
-					opImm = 1'bx;
-					//ImmediateFormer
-					immediateFormerMode = ImmediateFormerMode_t'('x);
 					//BranchALU
 					branchALUMode = JAL;//Go to new location
-					
-					controlError = 1'b0;
-					stop = 1'b0;
 				end
 				7'b11001??://jalr
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Latch rd (next sequential pc)
-					//MemoryController
-					memoryMode = NOP;
 					//RDInputChooser
 					rdSourceSelectLines.memoryOutputEnable = 1'b0;
 					rdSourceSelectLines.aluOutputEnable = 1'b0;
 					rdSourceSelectLines.immediateFormerOutputEnable = 1'b0;
 					rdSourceSelectLines.branchALUOutputEnable = 1'b1;//Get rd from BranchALU
-					//ALU
-					opImm = 1'bx;
-					//ImmediateFormer
-					immediateFormerMode = ImmediateFormerMode_t'('x);
 					//BranchALU
 					branchALUMode = JALR;//Go to new location
-					
-					controlError = 1'b0;
-					stop = 1'b0;
 				end
 				7'b11000??://branch instructions
 				begin
-					//RegisterFile
-					rdWriteEnable = 1'b0;
-					//MemoryController
-					memoryMode = NOP;
-					//RDInputChooser
-					rdSourceSelectLines.memoryOutputEnable = 1'bx;
-					rdSourceSelectLines.aluOutputEnable = 1'bx;
-					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
-					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
-					//ALU
-					opImm = 1'bx;
-					//ImmediateFormer
-					immediateFormerMode = ImmediateFormerMode_t'('x);
 					//BranchALU
 					branchALUMode = BRANCH;//Go to new location, or next sequential pc if branch is false
-					
-					controlError = 1'b0;
-					stop = 1'b0;
 				end
 				7'b00000??://load instructions
 				begin//This happens second
@@ -252,43 +226,16 @@ begin
 					rdSourceSelectLines.aluOutputEnable = 1'b0;
 					rdSourceSelectLines.immediateFormerOutputEnable = 1'b0;
 					rdSourceSelectLines.branchALUOutputEnable = 1'b0;
-					//ALU
-					opImm = 1'bx;
-					//ImmediateFormer
-					immediateFormerMode = ImmediateFormerMode_t'('x);
-					//BranchALU
-					branchALUMode = INCREMENT;//Now we can move to the next instruction
-					
-					controlError = 1'b0;
-					stop = 1'b0;
 				end
 				7'b01000??://store instructions
 				begin//This happens second (or is the only step for sw)
-					//RegisterFile
-					rdWriteEnable = 1'b0;
 					//MemoryController
 					memoryMode = STORE;//Now that the old value in memory has been modified with (or overwritten with in the case of sw) rs2, write the data back
-					//RDInputChooser
-					rdSourceSelectLines.memoryOutputEnable = 1'bx;
-					rdSourceSelectLines.aluOutputEnable = 1'bx;
-					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
-					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
-					//ALU
-					opImm = 1'bx;
-					//ImmediateFormer
-					immediateFormerMode = ImmediateFormerMode_t'('x);
-					//BranchALU
-					branchALUMode = INCREMENT;//Now we can move to the next instruction
-					
-					controlError = 1'b0;
-					stop = 1'b0;
 				end
 				7'b00100??://OP-IMM alu instructions
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save alu result
-					//MemoryController
-					memoryMode = NOP;
 					//RDInputChooser
 					rdSourceSelectLines.memoryOutputEnable = 1'b0;
 					rdSourceSelectLines.aluOutputEnable = 1'b1;//Output alu result
@@ -296,20 +243,11 @@ begin
 					rdSourceSelectLines.branchALUOutputEnable = 1'b0;
 					//ALU
 					opImm = 1'b1;//Is an OP-IMM type instruction
-					//ImmediateFormer
-					immediateFormerMode = ImmediateFormerMode_t'('x);
-					//BranchALU
-					branchALUMode = INCREMENT;//Go to next sequential pc
-					
-					controlError = 1'b0;
-					stop = 1'b0;
 				end
 				7'b01100??://Register-Register alu instructions
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save alu result
-					//MemoryController
-					memoryMode = NOP;
 					//RDInputChooser
 					rdSourceSelectLines.memoryOutputEnable = 1'b0;
 					rdSourceSelectLines.aluOutputEnable = 1'b1;//Output alu result
@@ -317,71 +255,30 @@ begin
 					rdSourceSelectLines.branchALUOutputEnable = 1'b0;
 					//ALU
 					opImm = 1'b0;//Is not an OP-IMM type instruction
-					//ImmediateFormer
-					immediateFormerMode = ImmediateFormerMode_t'('x);
-					//BranchALU
-					branchALUMode = INCREMENT;//Go to next sequential pc
-					
-					controlError = 1'b0;
-					stop = 1'b0;
 				end
-				7'b00011??://fence/fence.i
-				begin//Acts as a nop
-					//RegisterFile
-					rdWriteEnable = 1'b0;
-					//MemoryController
-					memoryMode = NOP;
-					//RDInputChooser
-					rdSourceSelectLines.memoryOutputEnable = 1'bx;
-					rdSourceSelectLines.aluOutputEnable = 1'bx;
-					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
-					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
-					//ALU
-					opImm = 1'bx;
-					//ImmediateFormer
-					immediateFormerMode = ImmediateFormerMode_t'('x);
-					//BranchALU
-					branchALUMode = INCREMENT;//Go to next sequential pc
-					
-					controlError = 1'b0;
-					stop = 1'b0;
-				end
+				7'b00011??: begin end//fence/fence.i (Acts as a nop)
 				7'b11100??://ecall/ebreak
 				begin//Acts as a fatal trap (on purpose); nice way to stop cpu
-					//RegisterFile
-					rdWriteEnable = 1'b0;
-					//MemoryController
-					memoryMode = NOP;
-					//RDInputChooser
-					rdSourceSelectLines.memoryOutputEnable = 1'bx;
-					rdSourceSelectLines.aluOutputEnable = 1'bx;
-					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
-					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
-					//ALU
-					opImm = 1'bx;
-					//ImmediateFormer
-					immediateFormerMode = ImmediateFormerMode_t'('x);
+					//ProgramCounter
+					programCounterWriteEnable = 1'b0;//Avoid messing up state; we are stopping cleanly
+					//InstructionAddressMux
+					instructionAddressSource = InstructionAddressSource_t'('x);
 					//BranchALU
 					branchALUMode = BranchALUMode_t'('x);
 					
-					controlError = 1'b0;
-					stop = 1'b1;//Halt cpu
+					controlError = 1'bx;
+					stop = 1'b1;//Fatal trap
 				end
 				default://Bad opcode
-				begin
+				begin//Unlike ecall/ebreaks, we are shutting down hard without care for cpu state
 					//RegisterFile
-					rdWriteEnable = 1'b0;
+					rdWriteEnable = 1'bx;
 					//MemoryController
-					memoryMode = NOP;
-					//RDInputChooser
-					rdSourceSelectLines.memoryOutputEnable = 1'bx;
-					rdSourceSelectLines.aluOutputEnable = 1'bx;
-					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
-					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
-					//ALU
-					opImm = 1'bx;
-					//ImmediateFormer
-					immediateFormerMode = ImmediateFormerMode_t'('x);
+					memoryMode = MemoryMode_t'('x);
+					//ProgramCounter
+					programCounterWriteEnable = 1'bx;
+					//InstructionAddressMux
+					instructionAddressSource = InstructionAddressSource_t'('x);
 					//BranchALU
 					branchALUMode = BranchALUMode_t'('x);
 					
@@ -390,13 +287,22 @@ begin
 				end
 			endcase
 		end
-		EXECUTE://First cycle of 2 cycle instructions
+		EXECUTE://First cycle of a 2 cycle instruction
 		begin
-			//Things that are the same for all instructions
-			//InstructionAddressMux
-			instructionAddressSource = CURRENT_PC;//Same for all instructions; since this is a 2 cycle instruction we can't move to the next one yet
+			//Defaults for control signals; changed for the specific instruction by the case statement
+			//RegisterFile
+			rdWriteEnable = 1'b0;
+			//MemoryController
+			memoryMode = NOP;
+			//RDInputChooser
+			rdSourceSelectLines.memoryOutputEnable = 1'bx;
+			rdSourceSelectLines.aluOutputEnable = 1'bx;
+			rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
+			rdSourceSelectLines.branchALUOutputEnable = 1'bx;
 			//ProgramCounter
 			programCounterWriteEnable = 1'b0;
+			//InstructionAddressMux
+			instructionAddressSource = CURRENT_PC;//Same for all instructions; since this is a 2 cycle instruction we can't move to the next one yet
 			//ALU
 			opImm = 1'bx;
 			//ImmediateFormer
@@ -404,52 +310,34 @@ begin
 			//BranchALU
 			branchALUMode = BranchALUMode_t'('x);
 			
+			controlError = 1'b0;
+			stop = 1'b0;
+			
 			//unique case (opcode) inside//Quartus Prime does not support case inside
 			unique casez (opcode)//Forced to do this instead
 				7'b00000??://load instructions
 				begin//This happens first
-					//RegisterFile
-					rdWriteEnable = 1'b0;//Don't need to write to the register yet, and can't mess up the value in the mean time because MemoryController might be referencing rs1
 					//MemoryController
 					memoryMode = LOAD;//Begin a memory load that will complete at the next posedge
-					//RDInputChooser
-					rdSourceSelectLines.memoryOutputEnable = 1'bx;//No need to set this yet
-					rdSourceSelectLines.aluOutputEnable = 1'bx;
-					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
-					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
-					
-					controlError = 1'b0;
-					stop = 1'b0;
 				end
 				7'b01000??://store instructions
 				begin//This happens first (only needed for sb and sh)
-					//RegisterFile
-					rdWriteEnable = 1'b0;
 					//MemoryController
 					memoryMode = STORE_PRELOAD;//Fetch the old value from the address in memory to modify + write back in the second cycle
-					//RDInputChooser
-					rdSourceSelectLines.memoryOutputEnable = 1'bx;
-					rdSourceSelectLines.aluOutputEnable = 1'bx;
-					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
-					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
-					
-					controlError = 1'b0;
-					stop = 1'b0;
 				end
 				default://Bad opcode for a 2 cycle instruction
-				begin
+				begin//We are shutting down hard without care for cpu state
 					//RegisterFile
-					rdWriteEnable = 1'b0;
+					rdWriteEnable = 1'bx;
 					//MemoryController
-					memoryMode = NOP;
-					//RDInputChooser
-					rdSourceSelectLines.memoryOutputEnable = 1'bx;
-					rdSourceSelectLines.aluOutputEnable = 1'bx;
-					rdSourceSelectLines.immediateFormerOutputEnable = 1'bx;
-					rdSourceSelectLines.branchALUOutputEnable = 1'bx;
+					memoryMode = MemoryMode_t'('x);
+					//ProgramCounter
+					programCounterWriteEnable = 1'bx;
+					//InstructionAddressMux
+					instructionAddressSource = InstructionAddressSource_t'('x);
 					
 					controlError = 1'b1;
-					stop = 1'b0;
+					stop = 1'bx;
 				end
 			endcase
 		end
