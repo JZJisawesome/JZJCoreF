@@ -18,10 +18,7 @@ module BranchALU
 	
 	//Outputs
 	output logic [31:0] programCounterInput,
-	output logic [31:0] branchALUOutput,
-	
-	//Error Flag
-	output logic branchALUBadBRANCHFunct3
+	output logic [31:0] branchALUOutput
 );
 logic [31:0] nextSeqentialPC;
 logic [31:0] nextJALPC;
@@ -69,15 +66,6 @@ begin
 		3'b111: branchTaken = rs1 >= rs2;//bgeu
 		default: branchTaken = 1'bx;//Invalid funct3
 	endcase
-end
-
-/* Bad Funct3 Detection */
-always_comb
-begin//Assumes branchALUMode is BRANCH
-	if ((funct3 == 3'b010) || (funct3 == 3'b011))
-		branchALUBadBRANCHFunct3 = 1'b1;
-	else//Valid funct3
-		branchALUBadBRANCHFunct3 = 1'b0;
 end
 
 endmodule

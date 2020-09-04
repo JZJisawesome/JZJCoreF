@@ -74,7 +74,6 @@ logic [31:0] branchALUOutput;
 //Control Logic
 logic [6:0] opcode;
 //Error Flags
-logic branchALUBadBRANCHFunct3;
 logic programCounterMisaligned;
 logic memoryUnalignedAccess;
 logic memoryBadFunct3;
