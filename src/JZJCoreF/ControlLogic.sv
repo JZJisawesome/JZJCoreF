@@ -5,8 +5,8 @@ module ControlLogic
 	input logic clock, reset,
 	
 	/* Instruction Parameters In */
-	input logic [6:0] opcode,
-	input logic [2:0] funct3,
+	input Opcode_t opcode,
+	input Funct3_t funct3,
 	
 	/* Control Lines */
 	//RegisterFile

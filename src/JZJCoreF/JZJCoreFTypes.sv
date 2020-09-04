@@ -1,8 +1,8 @@
 package JZJCoreFTypes;
 	/* Simple Types */
-	typedef logic [6:0] Opcode_t;//todo use in the future//todo maybe this should be made into a enum
-	typedef logic [2:0] Funct3_t;//todo use in the future
-	typedef logic [6:0] Funct7_t;//todo use in the future
+	typedef logic [6:0] Opcode_t;//todo maybe this should be made into a enum; see the comments in the Enums section
+	typedef logic [2:0] Funct3_t;
+	typedef logic [6:0] Funct7_t;
 
 	/* Enums */
 	typedef enum logic {LUI, AUIPC} ImmediateFormerMode_t;
@@ -11,6 +11,8 @@ package JZJCoreFTypes;
 	typedef enum logic {NEXT_PC, CURRENT_PC} InstructionAddressSource_t;
 	
 	//Todo add opcode type (prefix enum type names with OPCODE_ to avoid conflicts with above enums)
+	//I tried to add it before, but curiously it slowed things down significantly
+	//todo try again at some point
 	
 	/* Structs */
 	

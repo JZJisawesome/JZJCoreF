@@ -20,7 +20,7 @@ module MemoryController
 	
 	//Memory Mode and Control
 	input MemoryMode_t memoryMode,//LOAD, STORE_PREFETCH, and NOP do not alter any internal states, but only NOP will never set error flags 
-	input logic [2:0] funct3,
+	input Funct3_t funct3,
 	
 	//Addressing
 	input logic [31:0] rs1,

@@ -10,9 +10,9 @@ module InstructionDecoder
 	output DecodedAddresses_t decodedAddresses,//To register file
 	
 	//Instruction Encoding
-	output logic [6:0] opcode,//For JZJCoreF, opcode is strictly only to be used by the control logic
-	output logic [2:0] funct3,
-	output logic [6:0] funct7,
+	output Opcode_t opcode,//For JZJCoreF, opcode is strictly only to be used by the control logic
+	output Funct3_t funct3,
+	output Funct7_t funct7,
 	
 	//Immediates (preprocessed)
 	output logic [31:0] immediateI,
@@ -27,7 +27,7 @@ assign decodedAddresses.rs2Address = instruction[24:20];
 assign decodedAddresses.rdAddress = instruction[11:7];
 
 //Instruction Encoding
-assign opcode = instruction[6:0];
+assign opcode = Opcode_t'(instruction[6:0]);
 assign funct3 = instruction[14:12];
 assign funct7 = instruction[31:25];
 

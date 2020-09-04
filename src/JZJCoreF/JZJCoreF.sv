@@ -39,8 +39,8 @@ logic [31:0] memoryOutput;
 logic [31:0] instruction;
 
 //InstructionDecoder
-logic [2:0] funct3;
-logic [6:0] funct7;
+Funct3_t funct3;
+Funct7_t funct7;
 logic [31:0] immediateI;
 logic [31:0] immediateS;
 logic [31:0] immediateB;
@@ -72,7 +72,7 @@ BranchALUMode_t branchALUMode;
 logic [31:0] branchALUOutput;
 
 //Control Logic
-logic [6:0] opcode;
+Opcode_t opcode;
 //Error Flags
 logic programCounterMisaligned;
 logic memoryUnalignedAccess;

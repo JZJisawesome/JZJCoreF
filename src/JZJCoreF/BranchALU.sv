@@ -4,7 +4,7 @@ module BranchALU
 (
 	//Control Signals
 	input BranchALUMode_t branchALUMode,
-	input logic [2:0] funct3,
+	input Funct3_t funct3,
 	
 	//Immediate Inputs
 	input logic [31:0] immediateJ,
