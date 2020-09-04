@@ -34,10 +34,9 @@ module ControlLogic
 );
 /* Primitives */
 logic halt;//Next state should be state halt
+logic controlError;//Bad opcode or something similar 
 logic stop;//ecall/ebreak is signaling core to halt
-logic controlError;//Bad opcode (6:2) or something similar 
-logic badLowOpcode;//Bad opcode (1:0)
-assign halt = branchALUBadFunct3 | programCounterMisaligned | memoryUnalignedAccess | memoryBadFunct3 | stop | controlError | badLowOpcode;
+assign halt = branchALUBadFunct3 | programCounterMisaligned | memoryUnalignedAccess | memoryBadFunct3 | controlError | stop;
 
 logic isTwoCycleInstruction;//Updated on posedge after state change to determine next state change
 
@@ -88,16 +87,15 @@ end
 //Since opcode and funct3 update on the posedge, isTwoCycleInstruction also updates on the posedge (in time for the next state change)
 always_comb
 begin
-	//unique case (opcode) inside//Quartus Prime does not support case inside
-	unique casez (opcode)//Forced to do this instead
-		7'b00000??: isTwoCycleInstruction = 1'b1;//load instructions
-		7'b01000??: isTwoCycleInstruction = funct3 != 3'b010;//store instructions other than sw
+	unique case (opcode)
+		7'b0000011: isTwoCycleInstruction = 1'b1;//load instructions
+		7'b0100011: isTwoCycleInstruction = funct3 != 3'b010;//store instructions other than sw
 		default: isTwoCycleInstruction = 1'b0;//Either the instruction only takes 1 cycle, or this is a bad opcode, in which case it is handled by Control Line Logic section
 	endcase
 end
 
 /* Control Line Logic */
-//Also handles controlError
+//Also handles controlError and stop
 always_comb
 begin
 	unique case (currentState)
@@ -160,9 +158,9 @@ begin
 			controlError = 1'b0;
 			stop = 1'b0;
 			
-			//unique case (opcode) inside//Quartus Prime does not support case inside
-			unique casez (opcode)//Forced to do this instead
-				7'b01101??://lui
+			//Instruction specific settings
+			unique case (opcode)
+				7'b0110111://lui
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save lui value
@@ -174,7 +172,7 @@ begin
 					//ImmediateFormer
 					immediateFormerMode = LUI;//Generate lui value
 				end
-				7'b00101??://auipc
+				7'b0010111://auipc
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save auipc value
@@ -186,7 +184,7 @@ begin
 					//ImmediateFormer
 					immediateFormerMode = AUIPC;//Generate auipc value
 				end
-				7'b11011??://jal
+				7'b1101111://jal
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Latch rd (next sequential pc)
@@ -198,7 +196,7 @@ begin
 					//BranchALU
 					branchALUMode = JAL;//Go to new location
 				end
-				7'b11001??://jalr
+				7'b1100111://jalr
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Latch rd (next sequential pc)
@@ -210,12 +208,12 @@ begin
 					//BranchALU
 					branchALUMode = JALR;//Go to new location
 				end
-				7'b11000??://branch instructions
+				7'b1100011://branch instructions
 				begin
 					//BranchALU
 					branchALUMode = BRANCH;//Go to new location, or next sequential pc if branch is false
 				end
-				7'b00000??://load instructions
+				7'b0000011://load instructions
 				begin//This happens second
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Latch the value at the address
@@ -227,12 +225,12 @@ begin
 					rdSourceSelectLines.immediateFormerOutputEnable = 1'b0;
 					rdSourceSelectLines.branchALUOutputEnable = 1'b0;
 				end
-				7'b01000??://store instructions
+				7'b0100011://store instructions
 				begin//This happens second (or is the only step for sw)
 					//MemoryController
 					memoryMode = STORE;//Now that the old value in memory has been modified with (or overwritten with in the case of sw) rs2, write the data back
 				end
-				7'b00100??://OP-IMM alu instructions
+				7'b0010011://OP-IMM alu instructions
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save alu result
@@ -244,7 +242,7 @@ begin
 					//ALU
 					opImm = 1'b1;//Is an OP-IMM type instruction
 				end
-				7'b01100??://Register-Register alu instructions
+				7'b0110011://Register-Register alu instructions
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save alu result
@@ -256,8 +254,8 @@ begin
 					//ALU
 					opImm = 1'b0;//Is not an OP-IMM type instruction
 				end
-				7'b00011??: begin end//fence/fence.i (Acts as a nop)
-				7'b11100??://ecall/ebreak
+				7'b0001111: begin end//fence/fence.i (Acts as a nop)
+				7'b1110011://ecall/ebreak
 				begin//Acts as a fatal trap (on purpose); nice way to stop cpu
 					//ProgramCounter
 					programCounterWriteEnable = 1'b0;//Avoid messing up state; we are stopping cleanly
@@ -313,14 +311,14 @@ begin
 			controlError = 1'b0;
 			stop = 1'b0;
 			
-			//unique case (opcode) inside//Quartus Prime does not support case inside
-			unique casez (opcode)//Forced to do this instead
-				7'b00000??://load instructions
+			//Instruction specific settings
+			unique case (opcode)
+				7'b0000011://load instructions
 				begin//This happens first
 					//MemoryController
 					memoryMode = LOAD;//Begin a memory load that will complete at the next posedge
 				end
-				7'b01000??://store instructions
+				7'b0100011://store instructions
 				begin//This happens first (only needed for sb and sh)
 					//MemoryController
 					memoryMode = STORE_PRELOAD;//Fetch the old value from the address in memory to modify + write back in the second cycle
@@ -342,16 +340,6 @@ begin
 			endcase
 		end
 	endcase
-end
-
-/* Bad Low Opcode Detection */
-
-always_comb
-begin
-	if ((currentState == INITIAL_FETCH) || (currentState == FETCH_EXECUTE))
-		badLowOpcode = opcode[1:0] != 2'b11;//After an instruction fetch (on the posedge), check if the two low opcode bits are invalid
-	else
-		badLowOpcode = 1'b0;//Not fetching a new instruction, so ignore the low bits
 end
 
 endmodule 
