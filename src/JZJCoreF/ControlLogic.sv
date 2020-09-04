@@ -35,8 +35,9 @@ module ControlLogic
 /* Primitives */
 logic halt;//Next state should be state halt
 logic stop;//ecall/ebreak is signaling core to halt
-logic controlError;//Bad opcode or something similar
-assign halt = branchALUBadFunct3 | programCounterMisaligned | memoryUnalignedAccess | memoryBadFunct3 | stop | controlError;// | (opcode[1:0] != 2'b11)//todo should only be checked during an instruction execution state
+logic controlError;//Bad opcode (6:2) or something similar 
+logic badLowOpcode;//Bad opcode (1:0)
+assign halt = branchALUBadFunct3 | programCounterMisaligned | memoryUnalignedAccess | memoryBadFunct3 | stop | controlError | badLowOpcode;
 
 logic isTwoCycleInstruction;//Updated on posedge after state change to determine next state change
 
@@ -453,6 +454,16 @@ begin
 			endcase
 		end
 	endcase
+end
+
+/* Bad Low Opcode Detection */
+
+always_comb
+begin
+	if ((currentState == INITIAL_FETCH) || (currentState == FETCH_EXECUTE))
+		badLowOpcode = opcode[1:0] != 2'b11;//After an instruction fetch (on the posedge), check if the two low opcode bits are invalid
+	else
+		badLowOpcode = 1'b0;//Not fetching a new instruction, so ignore the low bits
 end
 
 endmodule 

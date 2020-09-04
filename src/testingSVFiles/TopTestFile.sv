@@ -1,5 +1,6 @@
 //Note: This is not part of the core, just a file for me to use to test the core on my devboard
 //To actually use the core, just add JZJCoreF.sv and its dependencies to your project (everything in the JZJCoreF folder)
+//This and multi7seg are the only modules borrowed from older cores (other then ideas that I had from then)
 module TopTestFile//heavily borrowed from JZJCoreE
 (
 	input bit clock,//50mhz
@@ -48,7 +49,7 @@ logic [15:0] displayOutput;
 assign displayOutput = register31Output;
 
 //The core
-localparam FILE = "memFiles/lbutest.mem";
+localparam FILE = "memFiles/sllisrliblttest.mem";
 
 //Full speed
 //JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest
