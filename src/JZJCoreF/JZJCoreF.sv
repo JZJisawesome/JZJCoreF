@@ -9,32 +9,17 @@ module JZJCoreF
 (
 	input logic clock, reset,
 	
-	//CPU memory mapped ports
+	//Memory Mapped Ports
 	//Note that reads and writes are written to the addresses in little endian format
 	//then converted back to be output / vise-versa for inputs
-	//This makes it so for reads rd[0] = portXMemoryAddress[24] = portXInput[0]
-	//and for writes............rs2[0] = portXMemoryAddress[24] = portXOutput[0]
+	//This makes it so for reads rd[0] = portXMemoryAddress[24] = mmioInputs[X][0]
+	//and for writes............rs2[0] = portXMemoryAddress[24] = mmioOutputs[X][0]
 	//My recomendation is therefore that ports are accessed whole words at a time
 	//but if you keep the little endian -> big endian format in mind you can write half words or bytes
 	//Reads from the address read from the input, writes write to the output
-	//Inputs: (byte-wise read)				address (starting byte)
-	input logic [31:0] portAInput,//		FFFFFFE0
-	input logic [31:0] portBInput,//		FFFFFFE4
-	input logic [31:0] portCInput,//   	FFFFFFE8
-	input logic [31:0] portDInput,//   	FFFFFFEC
-	input logic [31:0] portEInput,//   	FFFFFFF0
-	input logic [31:0] portFInput,//   	FFFFFFF4
-	input logic [31:0] portGInput,//   	FFFFFFF8
-	input logic [31:0] portHInput,//   	FFFFFFFC
-	//Outputs: (byte-wise write)			address (starting byte)
-	output logic [31:0] portAOutput,//	FFFFFFE0
-	output logic [31:0] portBOutput,//	FFFFFFE4
-	output logic [31:0] portCOutput,//	FFFFFFE8
-	output logic [31:0] portDOutput,//	FFFFFFEC
-	output logic [31:0] portEOutput,//	FFFFFFF0
-	output logic [31:0] portFOutput,//	FFFFFFF4
-	output logic [31:0] portGOutput,//	FFFFFFF8
-	output logic [31:0] portHOutput,//	FFFFFFFC
+	//mmioInputs [7:0] and mmioOutputs [7:0] are at byte-wise memory addresses [FFFFFFE0:FFFFFFFC] (each are 4 bytes)
+	input logic [31:0] mmioInputs [8],
+	output reg [31:0] mmioOutputs [8],
 	//For tristate ports, an additional port's outputs can be designated as a direction register, which can be used by and external module to allow/disalow writing
 	//If feedback is desired, then inputs should be connected to their respective output register
 	//MAKE SURE INPUTS ARE SYNCHRONIZED IF THEY ARE FROM ANOTHER CLOCK DOMAIN
