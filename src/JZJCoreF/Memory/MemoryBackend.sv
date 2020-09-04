@@ -34,13 +34,13 @@ logic ramWriteEnable;
 /* backendDataOut Multiplexing and ramWriteEnable/mmioWriteEnable Control */
 always_comb
 begin
-	if (backendAddress[29])//Upper half of the address space is for MemoryMappedIO
+	if (backendAddress[29])//Upper half of the address space is for MemoryMappedIO (even if only some addresses have a defined function)
 	begin
 		backendDataOut = mmioDataOut;
 		mmioWriteEnable = backendWriteEnable;
 		ramWriteEnable = 1'b0;
 	end
-	else//Lower half of the address space is for InferredRAM
+	else//Lower half of the address space is for InferredRAM (even if only some addresses have a defined function)
 	begin
 		backendDataOut = ramDataOut;
 		mmioWriteEnable = 1'b0;

@@ -15,6 +15,8 @@ module RegisterFile
 	input logic [31:0] rd,
 	input logic rdWriteEnable
 );
+/* Primitives */
+
 reg [31:0] registerFile [32];//x0 through x31
 
 //Read Port Multiplexing

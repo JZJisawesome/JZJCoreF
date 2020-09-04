@@ -79,7 +79,7 @@ assign offset = addressToAccess[1:0];
 
 /* Modules */
 //Internal
-//Should be nested module but Quartus Prime does not support them :(
+//Should be nested but Quartus Prime does not support nested modules :(
 MemoryControllerLOADProcessor memoryControllerLOADProcessor(.*);
 MemoryControllerSTOREProcessor memoryControllerSTOREProcessor(.*);
 MemoryControllerUnalignmentDetector unalignmentDetector(.*);
@@ -102,7 +102,7 @@ module MemoryControllerLOADProcessor
 	//Output (what to write to rd)
 	output logic [31:0] memoryOutput
 );
-//backendDataOut to memoryOutput (reading/loading)
+/* backendDataOut to memoryOutput (reading/loading) */
 always_comb//Assumes memoryMode is LOAD since memoryOutput will be ignored anyways if it RDInputChooser has not selected memory
 begin
 	unique case (funct3)
@@ -115,7 +115,7 @@ begin
 	endcase
 end
 
-//Selection Functions
+/* Selection Functions */
 
 function automatic logic [7:0] getByteAtOffset(input [31:0] data, input [1:0] offset);
 begin
@@ -152,8 +152,7 @@ module MemoryControllerSTOREProcessor
 	//Output (what to write to the memory address)
 	output logic [31:0] backendDataIn
 );
-
-//rs2 + (possibly) backendDataOut to backendDataIn (writing/storing)
+/* rs2 + (possibly) backendDataOut to backendDataIn (writing/storing) */
 always_comb//Assumes memoryMode is STORE since backendDataIn will not be writen unless memoryMode == STORE (see backendWriteEnable)
 begin//If funct3 is sb or sh, backendDataOut will have already been updated with the original contents of an address last posedge (STORE_PRELOAD), so we can use that here
 	unique case (funct3)
@@ -164,7 +163,7 @@ begin//If funct3 is sb or sh, backendDataOut will have already been updated with
 	endcase
 end
 
-//Replacement Functions
+/* Replacement Functions */
 
 function automatic logic [31:0] replaceByteAtOffset(input [31:0] data, input [7:0] newData, input [1:0] offset);
 begin

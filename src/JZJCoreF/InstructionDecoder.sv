@@ -32,16 +32,28 @@ assign funct3 = instruction[14:12];
 assign funct7 = instruction[31:25];
 
 //Immediates (preprocessed)
-assign immediateI = extend12To32(instruction[31:20]);
-assign immediateS = extend12To32({instruction[31:25], instruction[11:7]});
-assign immediateB = {{19{instruction[31]}}, instruction[31], instruction[7], instruction[30:25], instruction[11:8], 1'b0};
+assign immediateI = signExtend12To32(instruction[31:20]);
+assign immediateS = signExtend12To32({instruction[31:25], instruction[11:7]});
+assign immediateB = signExtend13To32({instruction[31], instruction[7], instruction[30:25], instruction[11:8], 1'b0});
 assign immediateU = {instruction[31:12], 12'h000};
-assign immediateJ = {{11{instruction[31]}}, instruction[31], instruction[19:12], instruction[20], instruction[30:21], 1'b0};
+assign immediateJ = signExtend21To32({instruction[31], instruction[19:12], instruction[20], instruction[30:21], 1'b0});
 
-//Sign extension function
-function automatic logic [31:0] extend12To32(input [11:0] data);
+//Sign extension functions (for immediate processing)
+function automatic logic [31:0] signExtend12To32(input [11:0] data);
 begin
-	extend12To32 = {{20{data[11]}}, data[11:0]};
+	signExtend12To32 = {{20{data[11]}}, data[11:0]};
+end
+endfunction
+
+function automatic logic [31:0] signExtend13To32(input [12:0] data);
+begin
+	signExtend13To32 = {{19{data[12]}}, data[12:0]};
+end
+endfunction
+
+function automatic logic [31:0] signExtend21To32(input [20:0] data);
+begin
+	signExtend21To32 = {{11{data[20]}}, data[20:0]};
 end
 endfunction
 

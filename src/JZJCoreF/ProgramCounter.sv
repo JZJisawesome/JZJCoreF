@@ -15,6 +15,7 @@ module ProgramCounter
 	//Error Flag
 	output logic programCounterMisaligned
 );
+/* Primitives */
 reg [31:0] programCounter = RESET_VECTOR;
 
 assign pcOfInstruction = programCounter;

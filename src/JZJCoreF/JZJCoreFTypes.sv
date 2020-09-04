@@ -10,6 +10,8 @@ package JZJCoreFTypes;
 	typedef enum logic [1:0] {LOAD, STORE_PRELOAD, STORE, NOP} MemoryMode_t;
 	typedef enum logic {NEXT_PC, CURRENT_PC} InstructionAddressSource_t;
 	
+	//Todo add opcode type (prefix enum type names with OPCODE_ to avoid conflicts with above enums)
+	
 	/* Structs */
 	
 	//Used for passing addressing data from InstructionDecoder to RegisterFile

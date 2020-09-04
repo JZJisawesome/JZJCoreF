@@ -21,10 +21,6 @@ logic [31:0] aluOutputSwitched;
 logic [31:0] immediateFormerOutputSwitched;
 logic [31:0] branchALUOutputSwitched;
 
-//Or all inputs together
-//Proably should be swapped with a priority decoder if that is faster, but at least this is better than a wor
-assign rd = memoryOutputSwitched | aluOutputSwitched | immediateFormerOutputSwitched | branchALUOutputSwitched;
-
 /* Switching Logic */
 //Switched versions of module data are 32'h00000000 if their corresponding enable line is disabled
 always_comb
@@ -34,5 +30,9 @@ begin
 	immediateFormerOutputSwitched = immediateFormerOutput & {{32{rdSourceSelectLines.immediateFormerOutputEnable}}};
 	branchALUOutputSwitched = branchALUOutput & {{32{rdSourceSelectLines.branchALUOutputEnable}}};
 end
+
+//Or all inputs together
+//Probably should be swapped with a priority decoder if that is faster, but at least this is better than a wor
+assign rd = memoryOutputSwitched | aluOutputSwitched | immediateFormerOutputSwitched | branchALUOutputSwitched;
 
 endmodule

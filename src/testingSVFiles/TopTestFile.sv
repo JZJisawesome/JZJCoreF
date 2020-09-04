@@ -44,11 +44,13 @@ assign led[3:0] = mmioOutputs[4][7:4];
 assign mmioInputs[4][7:4] = mmioOutputs[4][7:4];//Feedback from leds
 
 logic [15:0] displayOutput;
-//assign displayOutput = mmioOutputs[5][15:0];
-assign displayOutput = register31Output;
+
+//Choose source for display output
+assign displayOutput = mmioOutputs[5][15:0];
+//assign displayOutput = register31Output;
 
 //The core
-localparam FILE = "memFiles/bneandsubtest.mem";
+localparam FILE = "memFiles/fibbonaccimmio.mem";
 
 //Full speed
 //JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest(.*);
