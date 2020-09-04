@@ -48,21 +48,18 @@ logic [15:0] displayOutput;
 assign displayOutput = register31Output;
 
 //The core
-localparam FILE = "memFiles/memorymappediowritetest.mem";
+localparam FILE = "memFiles/bneandsubtest.mem";
 
 //Full speed
-//JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest
-//(.*);
+//JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest(.*);
 
 //Half speed
-//JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest
-//(.*, .clock(clock25MHz));
+//JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest(.*, .clock(clock25MHz));
 
 //Slow
-JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest
-(.*, .clock(clock90Hz));
+JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest(.*, .clock(clock90Hz));
 
-//7 segment display output
+//7 segment display output (in Verilog)
 multi7seg (.clock(clockPrescaler[17]), .data0(displayOutput[15:12]), .data1(displayOutput[11:8]), .data2(displayOutput[7:4]), .data3(displayOutput[3:0]), .segment(segment), .ground(digit));
 
 endmodule

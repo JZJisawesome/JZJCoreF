@@ -37,7 +37,7 @@ logic halt;//Next state should be state halt
 logic controlError;//Bad opcode or something similar 
 logic stop;//ecall/ebreak is signaling core to halt
 logic branchALUBadFunct3;//same as branchALUBadBRANCHFunct3 but only when the opcode is BRANCH
-assign halt = programCounterMisaligned | memoryUnalignedAccess | memoryBadFunct3 | controlError | stop;
+assign halt = branchALUBadFunct3 | programCounterMisaligned | memoryUnalignedAccess | memoryBadFunct3 | controlError | stop;
 
 logic isTwoCycleInstruction;//Updated on posedge after state change to determine next state change
 
@@ -334,8 +334,6 @@ begin
 					programCounterWriteEnable = 1'bx;
 					//InstructionAddressMux
 					instructionAddressSource = InstructionAddressSource_t'('x);
-					//BranchALU
-					branchALUMode = BranchALUMode_t'('x);
 					
 					controlError = 1'b1;
 					stop = 1'bx;
