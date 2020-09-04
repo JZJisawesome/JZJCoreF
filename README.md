@@ -16,11 +16,13 @@ Although this design is a complete rewrite (I never copied any core code from ol
 
 Note: The first instruction executed by JZJCoreF takes an additional cycle because it needs to be fetched from memory. After this "initial fetch," later instructions are fetched concurently with the one being executed, allowing for a lower CPI overall.
 
-Some instructions take two cycles, so the fetch for the following instruction is performed on the second cycle. Load instructions need two cycles so that a memory address can be read (1), then latched into a register (2). Store halfword and store byte instructions need two cycles because of the nature of the memory backend in JZJCoreF; it is organized as 32 bit data, so partial writes require a read(1)-modify-write(2) sequence. Store word instructions take only 1 cycle because they don't care about existing data at an address; they will overwrite it all anyways. Every other instruction just uses combinatorial logic between the register file and the pc's outputs and inputs, and so only take 1 cycle to latch changes (All Hail Contamination Delay!).
+Some instructions take two cycles, so the fetch for the following instruction is performed on the second cycle. Load instructions need two cycles so that a memory address can be read (1), then latched into a register (2). Store halfword and store byte instructions need two cycles because of the nature of the memory backend in JZJCoreF; it is organized as 32 bit data, so partial writes require a read(1)-modify-write(2) sequence.
+
+Store word instructions take only 1 cycle because they don't care about existing data at an address; they will overwrite it all anyways. Every other instruction just uses combinatorial logic between the register file/the pc's outputs and inputs, and so only take 1 cycle to latch changes (All Hail Contamination Delay!).
 
 | Instruction | Cycle Count |
 |:------------|:-----------------------|
-|-Base Spec(I)-|
+|Base Spec(I)|
 | lui | 1 |
 | auipc | 1 |
 | jal | 1 |
@@ -61,18 +63,18 @@ Some instructions take two cycles, so the fetch for the following instruction is
 | fence | 1 |
 | ecall | 1 |
 | ebreak | 1 |
-|-Zifencei-|
+|Zifencei|
 | fence.i | 1 |
 
 ## Memory Map
 
-Note: Addresses are inclusive, and a write to an unmapped address will cause undefined behaviour. Execution starts at the JZJCoreF parameter RESET_VECTOR, which is address 32'h00000000 by default, and is only supported within the RAM Start and RAM End addresses.
+Note: Addresses are inclusive, and a read/write to an unmapped address will cause undefined behaviour. Execution starts at the JZJCoreF parameter RESET_VECTOR, which is address 32'h00000000 by default, and is only supported within the RAM Start and RAM End addresses.
 
-As of JZJCoreE, memory mapped IO registers function differently. There are no more direction registers, only port registers. Writes to a memory mapped io address write to mmioOutputs[X], and reads read from mmioInputs[X]. A register must be dedicated to external tristate logic if desired, and if feedback is desired then mmioInputs should be connected directly to mmioOutputs. Connections to the ports from or to other clock domains require synchronizers or asynchronous FIFOs. This new scheme allows for greater flexibility with external devices and modules, while allowing for high speed communication between modules in the same clock domain.
+Since JZJCoreE, memory mapped IO registers function differently. There are no more direction registers, only port registers. Writes to a memory mapped io address write to mmioOutputs[X], and reads read from mmioInputs[X]. A register must be dedicated to an external tristate logic controller if desired, and if feedback is desired then mmioInputs should be connected directly to mmioOutputs. Connections to the ports from or to other clock domains require synchronizers or asynchronous FIFOs. This new scheme allows for greater flexibility with external devices and modules, while allowing for high speed communication between modules in the same clock domain.
 
-Memory Mapped IO must be read/written 1 word at a time, otherwise read-modify-write behaviour and endianness could break things. However, if you are careful and inspect MemoryMappedIO.sv/MemoryController.sv, you can read/write halfwords and bytes (but you might need feedback between the inputs and outputs).
+Memory Mapped IO registers must be read/written 1 word at a time, otherwise read-modify-write behaviour and endianness could break things. However, if you are careful and inspect MemoryMappedIO.sv/MemoryController.sv, you can read/write halfwords and bytes (but you might need feedback between the inputs and outputs).
 
-| Bytewise Address (whole word) | Physical Word-wise Address | Function |
+| Byte-wise Address (whole word) | Backend Word-wise Address | Function |
 |:------------------------------|:---------------------------|:---------|
 |0x00000000 to 0x00000003|0x00000000|RAM Start|
 |0x0000FFFC to 0x0000FFFF|0x00003FFF|RAM End (Default for 12 bit RAM_A_WIDTH)|
