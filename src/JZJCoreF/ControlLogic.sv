@@ -20,7 +20,7 @@ module ControlLogic
 	//InstructionAddressMux
 	output InstructionAddressSource_t instructionAddressSource,
 	//ALU
-	output logic opImm,
+	output ALUMode_t aluMode,
 	//ImmediateFormer
 	output ImmediateFormerMode_t immediateFormerMode,
 	//BranchALU
@@ -86,8 +86,8 @@ end
 always_comb
 begin
 	unique case (opcode)
-		7'b0000011: isTwoCycleInstruction = 1'b1;//load instructions
-		7'b0100011: isTwoCycleInstruction = funct3 != 3'b010;//store instructions other than sw
+		7'b00000_11: isTwoCycleInstruction = 1'b1;//load instructions
+		7'b01000_11: isTwoCycleInstruction = funct3 != 3'b010;//store instructions other than sw
 		default: isTwoCycleInstruction = 1'b0;//Either the instruction only takes 1 cycle, or this is a bad opcode so this value dosen't matter
 	endcase
 end
@@ -116,7 +116,7 @@ begin
 			else
 				instructionAddressSource = InstructionAddressSource_t'('x);//Halted, so this dosen't matter
 			//ALU
-			opImm = 1'bx;
+			aluMode = ALUMode_t'('x);
 			//ImmediateFormer
 			immediateFormerMode = ImmediateFormerMode_t'('x);
 			//BranchALU
@@ -144,7 +144,7 @@ begin
 			//InstructionAddressMux
 			instructionAddressSource = NEXT_PC;//Note that for other modules the current instruction is still used, this is just for memory fetching
 			//ALU
-			opImm = 1'bx;
+			aluMode = ALUMode_t'('x);
 			//ImmediateFormer
 			immediateFormerMode = ImmediateFormerMode_t'('x);
 			//BranchALU
@@ -154,7 +154,7 @@ begin
 			
 			//Instruction specific settings
 			unique case (opcode)
-				7'b0110111://lui
+				7'b01101_11://lui
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save lui value
@@ -166,7 +166,7 @@ begin
 					//ImmediateFormer
 					immediateFormerMode = LUI;//Generate lui value
 				end
-				7'b0010111://auipc
+				7'b00101_11://auipc
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save auipc value
@@ -178,7 +178,7 @@ begin
 					//ImmediateFormer
 					immediateFormerMode = AUIPC;//Generate auipc value
 				end
-				7'b1101111://jal
+				7'b11011_11://jal
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Latch rd (next sequential pc)
@@ -190,7 +190,7 @@ begin
 					//BranchALU
 					branchALUMode = JAL;//Go to new location
 				end
-				7'b1100111://jalr
+				7'b11001_11://jalr
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Latch rd (next sequential pc)
@@ -202,12 +202,12 @@ begin
 					//BranchALU
 					branchALUMode = JALR;//Go to new location
 				end
-				7'b1100011://branch instructions
+				7'b11000_11://branch instructions
 				begin
 					//BranchALU
 					branchALUMode = BRANCH;//Go to new location, or next sequential pc if branch is false
 				end
-				7'b0000011://load instructions
+				7'b00000_11://load instructions
 				begin//This happens second
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Latch the value at the address
@@ -219,12 +219,12 @@ begin
 					rdSourceSelectLines.immediateFormerOutputEnable = 1'b0;
 					rdSourceSelectLines.branchALUOutputEnable = 1'b0;
 				end
-				7'b0100011://store instructions
+				7'b01000_11://store instructions
 				begin//This happens second (or is the only step for sw)
 					//MemoryController
 					memoryMode = STORE;//Now that the old value in memory has been modified with (or overwritten with in the case of sw) rs2, write the data back
 				end
-				7'b0010011://OP-IMM alu instructions
+				7'b00100_11://OP-IMM alu instructions
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save alu result
@@ -234,9 +234,9 @@ begin
 					rdSourceSelectLines.immediateFormerOutputEnable = 1'b0;
 					rdSourceSelectLines.branchALUOutputEnable = 1'b0;
 					//ALU
-					opImm = 1'b1;//Is an OP-IMM type instruction
+					aluMode = OP_IMM;
 				end
-				7'b0110011://Register-Register alu instructions
+				7'b01100_11://Register-Register alu instructions
 				begin
 					//RegisterFile
 					rdWriteEnable = 1'b1;//Save alu result
@@ -246,10 +246,10 @@ begin
 					rdSourceSelectLines.immediateFormerOutputEnable = 1'b0;
 					rdSourceSelectLines.branchALUOutputEnable = 1'b0;
 					//ALU
-					opImm = 1'b0;//Is not an OP-IMM type instruction
+					aluMode = REGISTER;
 				end
-				7'b0001111: begin end//fence/fence.i (Acts as a nop)
-				7'b1110011://ecall/ebreak
+				7'b00011_11: begin end//fence/fence.i (Acts as a nop)
+				7'b11100_11://ecall/ebreak
 				begin//Causes clean termination of the cpu (on purpose); the only implemented requested trap
 					//ProgramCounter
 					programCounterWriteEnable = 1'b0;//Avoid messing up state; we are stopping cleanly
@@ -294,7 +294,7 @@ begin
 			//InstructionAddressMux
 			instructionAddressSource = CURRENT_PC;//Same for all instructions; since this is a 2 cycle instruction we can't move to the next one yet
 			//ALU
-			opImm = 1'bx;
+			aluMode = ALUMode_t'('x);
 			//ImmediateFormer
 			immediateFormerMode = ImmediateFormerMode_t'('x);
 			//BranchALU
@@ -304,12 +304,12 @@ begin
 			
 			//Instruction specific settings
 			unique case (opcode)
-				7'b0000011://load instructions
+				7'b00000_11://load instructions
 				begin//This happens first
 					//MemoryController
 					memoryMode = LOAD;//Begin a memory load that will complete at the next posedge
 				end
-				7'b0100011://store instructions
+				7'b01000_11://store instructions
 				begin//This happens first (only needed for sb and sh)
 					//MemoryController
 					memoryMode = STORE_PRELOAD;//Fetch the old value from the address in memory to modify + write back in the second cycle

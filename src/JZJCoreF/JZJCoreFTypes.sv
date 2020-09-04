@@ -9,6 +9,7 @@ package JZJCoreFTypes;
 	typedef enum logic [1:0] {JAL, JALR, BRANCH, INCREMENT} BranchALUMode_t;//Note: use anything but BRANCH for a nop
 	typedef enum logic [1:0] {LOAD, STORE_PRELOAD, STORE, NOP} MemoryMode_t;
 	typedef enum logic {NEXT_PC, CURRENT_PC} InstructionAddressSource_t;
+	typedef enum logic {REGISTER, OP_IMM} ALUMode_t;
 	
 	//Todo add opcode type (prefix enum type names with OPCODE_ to avoid conflicts with above enums)
 	//I tried to add it before, but curiously it slowed things down significantly

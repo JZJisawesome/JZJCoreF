@@ -60,7 +60,7 @@ InstructionAddressSource_t instructionAddressSource;
 logic [31:0] instructionAddressToAccess;
 
 //ALU
-logic opImm;
+ALUMode_t aluMode;
 logic [31:0] aluOutput;
 
 //ImmediateFormer

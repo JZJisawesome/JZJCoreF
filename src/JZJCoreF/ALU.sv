@@ -3,7 +3,7 @@ module ALU
 	//Determine ALU function
 	input Funct3_t funct3,
 	input Funct7_t funct7,
-	input logic opImm,//Instruction type is OP-IMM (so using immediateI instead of rs2)
+	input ALUMode_t aluMode,//Choose between immediateI ore rs2 as a second operand
 	
 	//Operands
 	input logic [31:0] rs1,
@@ -19,12 +19,11 @@ logic [31:0] secondOperand;
 
 always_comb
 begin
-	if (opImm)
-	begin
-		secondOperand = immediateI;
-	end
-	else
-		secondOperand = rs2;
+	unique case (aluMode)
+		REGISTER: secondOperand = rs2;
+		OP_IMM: secondOperand = immediateI;
+		default: aluOutput = 'x;//aluMode is invalid
+	endcase
 end
 
 /* ALU Functions */
@@ -33,10 +32,11 @@ begin
 	unique case (funct3)
 		3'b000://add/sub/addi
 		begin
-			if (opImm)//There is no subi
-				aluOutput = rs1 + secondOperand;//addi
-			else
-				aluOutput = funct7[5] ? rs1 - secondOperand : rs1 + secondOperand;//add/sub
+			unique case (aluMode)
+				REGISTER: aluOutput = funct7[5] ? rs1 - secondOperand : rs1 + secondOperand;//add/sub
+				OP_IMM: aluOutput = rs1 + secondOperand;//addi (there is no subi)
+				default: aluOutput = 'x;//aluMode is invalid
+			endcase
 		end
 		3'b001: aluOutput = rs1 << secondOperand[4:0];//sll/slli
 		3'b010: aluOutput = ($signed(rs1) < $signed(secondOperand)) ? 32'h00000001 : 32'h00000000;//slt/slti
