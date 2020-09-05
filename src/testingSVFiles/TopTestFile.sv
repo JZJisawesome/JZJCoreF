@@ -3,16 +3,16 @@
 //This and multi7seg are the only modules borrowed from older cores (other then ideas that I had from then)
 module TopTestFile//heavily borrowed from JZJCoreE
 (
-	input bit clock,//50mhz
-	input bit notReset,
+	input logic clock,//50mhz
+	input logic notReset,
 
 	//Testing things I have setup
-	input bit [3:0] notButton,
-	output bit [3:0] notLed,
-	output bit [7:0] logicAnalyzerOut,
+	input logic [3:0] notButton,
+	output logic [3:0] notLed,
+	output logic [7:0] logicAnalyzerOut,
 	//7 segment display
-	output bit [7:0] segment,
-	output bit [3:0] digit
+	output logic [7:0] segment,
+	output logic [3:0] digit
 );
 //Inversion for inverted devboard stuff
 wire reset = ~notReset;
@@ -53,13 +53,13 @@ assign displayOutput = mmioOutputs[5][15:0];
 localparam FILE = "memFiles/fibbonaccimmio.mem";
 
 //Full speed
-//JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest(.*);
+JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest(.*);
 
 //Half speed
 //JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest(.*, .clock(clock25MHz));
 
 //Slow
-JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest(.*, .clock(clock90Hz));
+//JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest(.*, .clock(clock90Hz));
 
 //7 segment display output (in Verilog)
 multi7seg (.clock(clockPrescaler[17]), .data0(displayOutput[15:12]), .data1(displayOutput[11:8]), .data2(displayOutput[7:4]), .data3(displayOutput[3:0]), .segment(segment), .ground(digit));
