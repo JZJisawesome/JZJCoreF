@@ -29,7 +29,7 @@ always_ff @(posedge clock, posedge reset)
 begin
 	if (reset)
 	begin
-		for (int i = 1; i < 32; ++i)//x0 does not need to be reset because it is never modified
+		for (int i = 1; i < 32; ++i)//x0 does not need to be reset because it is not actually present
 			registerFile[i] <= 32'h00000000;
 	end
 	else if (clock)

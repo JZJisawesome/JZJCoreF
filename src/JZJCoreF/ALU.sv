@@ -33,8 +33,8 @@ begin
 		3'b000://add/sub/addi
 		begin
 			unique case (aluMode)
-				REGISTER: aluOutput = funct7[5] ? rs1 - secondOperand : rs1 + secondOperand;//add/sub
-				OP_IMM: aluOutput = rs1 + secondOperand;//addi (there is no subi)
+				REGISTER: aluOutput = funct7[5] ? rs1 - rs2 : rs1 + rs2;//add/sub
+				OP_IMM: aluOutput = rs1 + immediateI;//addi (there is no subi)
 				default: aluOutput = 'x;//aluMode is invalid
 			endcase
 		end
