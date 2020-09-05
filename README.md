@@ -66,11 +66,25 @@ Store word instructions take only 1 cycle because they don't care about existing
 |Zifencei|
 | fence.i | 1 |
 
+## Theories Of Operation
+
+### Execution Cycle
+
+todo
+
+### Instruction Fence (Zifencei: fence.i Instruction)
+
+todo
+
+### Memory Architecture
+
+todo
+
 ## JZJCore EEI
 
 ### Initial Register Values
 
-All general purpose registers are initialized with 32'h00000000 at power up and reset. The program counter is initialized with the SystemVerilog parameter RESET_VECTOR, which is 32'h00000000 by default if unspecified during JZJCoreF module instantiation.
+All general purpose registers (x0 through x31) are initialized with 32'h00000000 at power up and reset. The program counter is initialized with the SystemVerilog parameter RESET_VECTOR, which is 32'h00000000 by default if unspecified during JZJCoreF module instantiation.
 
 ### Hart Information and ISA Class
 
@@ -78,15 +92,15 @@ JZJCoreF contains only a single, unprivileged RV32IZifencei hart.
 
 ### Traps
 
-JZJCoreF contains no interrupt controller or interrupt/exception vector. All exceptions from defined instructions cause fatal traps, but invalid instruction encodings (opcode, funct3, or funct7) cause undefined behaviour; not necessarily a fatal trap. Nevertheless they should obviously be avoided. The ECALL and EBREAK instructions provide a clean way of stopping execution by terminating the hart (a requested trap).
+JZJCoreF contains no interrupt controller or interrupt/exception vector. All exceptions from defined instructions cause fatal traps, but invalid instruction encodings (opcode, funct3, or funct7) cause unspecified behaviour; not necessarily a fatal trap. Nevertheless they should obviously be avoided. The ECALL and EBREAK instructions provide a clean way of stopping execution by terminating the hart (a requested trap).
 
-### Memory Map
+### Memory Access Restrictions and Memory Map
 
-Note: Addresses in the table below are inclusive and a read/write to an unmapped address will cause undefined behaviour. Execution is only supported within the RAM Start and RAM End addresses, undefined behaviour will occur if an instruction is fetched from outside that region, and a misaligned control transfer instruction will cause a fatal trap.
+Addresses in the table below are inclusive and a read/write to an unmapped address will cause unspecified behaviour. Execution is only supported within the RAM Start and RAM End addresses, so unspecified behaviour will occur if an instruction is fetched from outside that region. A misaligned control transfer instruction will cause a fatal trap (only if taken in the case of branches).
 
 Since JZJCoreE, memory mapped IO registers function differently. There are no more direction registers, only port registers. Writes to a memory mapped io address write to mmioOutputs[X], and reads read from mmioInputs[X]. A register must be dedicated to an external tristate logic controller if desired, and if feedback is desired then pins in mmioInputs should be connected directly to the respective mmioOutputs pins. Connections to the ports from or to other clock domains require synchronizers or asynchronous FIFOs. This new scheme allows for greater flexibility with external devices and modules, while still allowing for high speed communication between modules in the same clock domain.
 
-Memory Mapped IO registers must be read/written 1 word at a time, otherwise read-modify-write behaviour and endianness could break things. However, if you are careful and inspect MemoryMappedIO.sv/MemoryController.sv, you can read/write halfwords and bytes (but you might need feedback between the inputs and outputs). RAM addresses may be accessed with any load/store instruction.
+Memory Mapped IO registers must be read/written 1 word at a time; halfword or byte accesses may cause unspecified core behaviour. RAM addresses may be accessed with any load/store instruction.
 
 All memory accesses must be aligned (to 4 bytes boundaries for word accesses, and to 2 byte boundaries for halfword accesses), or else will cause a fatal trap.
 
