@@ -1,8 +1,5 @@
 import JZJCoreFTypes::*;
 
-import EndiannessFunctions::toBigEndian32;
-import EndiannessFunctions::toLittleEndian32;
-
 module MemoryMappedIO
 (
 	input logic clock, reset,
@@ -10,7 +7,7 @@ module MemoryMappedIO
 	//MemoryBackend Interface
 	input logic [29:0] backendAddress,
 	output logic [31:0] mmioDataOut,
-	input logic [31:0] backendDataIn,
+	input logic [31:0] rs2,//Data to write from instruction
 	input WriteEnable_t mmioWriteEnable,
 	
 	//Memory Mapped Ports
@@ -18,12 +15,12 @@ module MemoryMappedIO
 	input logic [31:0] mmioInputs [8],
 	output reg [31:0] mmioOutputs [8]
 );
-//Addressing
+//Port Addressing
 logic [2:0] portNumber;
 assign portNumber = backendAddress[2:0];
 
 //Read Logic
-assign mmioDataOut = toLittleEndian32(mmioInputs[portNumber]);//Need to convert to little endian because MemoryController will then convert back to big endian
+assign mmioDataOut = mmioInputs[portNumber];
 
 //Write Logic
 always_ff @(posedge clock, posedge reset)
@@ -36,7 +33,7 @@ begin
 	else if (clock)
 	begin
 		if (mmioWriteEnable)
-			mmioOutputs[portNumber] <= toBigEndian32(backendDataIn);//backendDataIn is little endian, so it needs to be converted then latched
+			mmioOutputs[portNumber] <= rs2;//Latch new data to output
 	end
 end
 

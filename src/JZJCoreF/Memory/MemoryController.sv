@@ -59,11 +59,11 @@ logic [1:0] offset;
 
 //Memory Mapped IO Data Connections
 WriteEnable_t mmioWriteEnable;
-logic [31:0] mmioDataOut;
+logic [31:0] mmioDataOut;//Big endian
 
 //RAM Data Connections
 WriteEnable_t ramWriteEnable;
-logic [31:0] ramDataOut;
+logic [31:0] ramDataOut;//Big endian
 
 /* Instruction Fetching Logic */
 assign instruction = toBigEndian32(instructionLittleEndian);//Convert fetched instruction to big endian
@@ -88,7 +88,7 @@ assign offset = addressToAccess[1:0];//Low 2 bits
 //Write enable logic
 assign backendWriteEnable = WriteEnable_t'(memoryMode == STORE);//We only ever write to memory for a store operation
 assign mmioWriteEnable = WriteEnable_t'(backendWriteEnable & backendAddress[29]);//Upper half of memory is dedicated to MMIO
-assign mmioWriteEnable = WriteEnable_t'(backendWriteEnable & ~backendAddress[29]);//Lower half of memory is dedicated to RAM
+assign ramWriteEnable = WriteEnable_t'(backendWriteEnable & ~backendAddress[29]);//Lower half of memory is dedicated to RAM
 
 /* Output Multiplexer */
 
@@ -122,6 +122,6 @@ end
 
 /* Modules */
 
-//todo
+MemoryMappedIO memoryMappedIO(.*);
 
 endmodule: MemoryController
