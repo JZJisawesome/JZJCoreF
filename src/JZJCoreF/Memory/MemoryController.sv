@@ -100,30 +100,9 @@ begin
 		memoryOutput = ramDataOut;
 end
 
-/* Modules */
-//Internal (Should be nested but Quartus Prime does not support nested modules)
-MemoryControllerUnalignmentDetector unalignmentDetector(.*);
+/* Unaligned Access Detection */
 
-//External
-//todo
-
-endmodule: MemoryController
-
-/* Internal Modules */
-
-//Should be nested but Quartus Prime does not support nested modules :(
-module MemoryControllerUnalignmentDetector
-(
-	//Inputs
-	input MemoryMode_t memoryMode,
-	input logic [2:0] funct3,
-	input logic [1:0] offset,
-	
-	//Error Flag
-	output logic memoryUnalignedAccess
-);
-
-//Unaligned Access Detection
+//TODO speed up
 always_comb
 begin
 	unique case (memoryMode)
@@ -141,4 +120,8 @@ begin
 	endcase
 end
 
-endmodule: MemoryControllerUnalignmentDetector
+/* Modules */
+
+//todo
+
+endmodule: MemoryController
