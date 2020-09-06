@@ -61,20 +61,22 @@ Store word instructions take only 1 cycle because they don't care about existing
 | or | 1 |
 | and | 1 |
 | fence | 1 |
-| ecall | 1 |
-| ebreak | 1 |
+| ecall | 0.5* |
+| ebreak | 0.5* |
 |Zifencei|
 | fence.i | 1 |
+
+*Halts cpu at the following negative clock edge after the previous instruction. This is intended behaviour, see the JZJCore EEI for more information (it is a legal type of requested trap).
 
 ## Theories Of Operation
 
 ### Execution Cycle
 
-JZJCoreF is a RV32IZifencei implementation that executes instructions using its 2 "stageish" pipeline. Most instruction are completed in effectively a single cycle by fetching a future instruction from memory concurently with the execution of another.
+JZJCoreF is a RV32IZifencei implementation that executes instructions using its 2 "stageish" pipeline. Most instruction are completed in effectively a single cycle by fetching a future instruction from memory concurrently with the execution of another.
 
 The ControlLogic module contains a state machine, which, after power on or reset, is initialized with the INITIAL_FETCH state. This state simply configures the MemoryController and InstructionAddressMux to fetch the first instruction to execute (located at the RESET_VECTOR parameter address). This instruction is fetched on the first posedge after reset/power on, and latched in MemoryController's instruction out port. Before the following negative edge of the clock, the instruction is decoded and sent to the ControlLogic module. If the instruction can be completed in a single cycle, the state becomes FETCH_EXECUTE at the negedge; but if it takes two cycles the state becomes EXECUTE.
 
-If the instruction only takes one cycle, the FETCH_EXECUTE state then decodes the instruction starting from the negedge and sets control signals appropriatly. The result of the instruction is then latched into either the registers or memory at the next posedge. ControlLogic simultaneously sets the next pc address to be calculated and also latches this value into the pc at the next posedge. Concurently, the InstructionAddressMux is set to bypass the pc and use the calculated future value to fetch the next instruction. All of this happens on a single posedge. After this posedge, if the instruction that was executed caused the PC to be misaligned or attempted an unaligned memory access, the core would enter the HALT state. If not, the newly fetched instruction causes the state to become either FETCH_EXECUTE or EXECUTE and the cycle repeats again.
+If the instruction only takes one cycle, the FETCH_EXECUTE state then decodes the instruction starting from the negedge and sets control signals appropriately. The result of the instruction is then latched into either the registers or memory at the next posedge. ControlLogic simultaneously sets the next pc address to be calculated and also latches this value into the pc at the next posedge. Concurently, the InstructionAddressMux is set to bypass the pc and use the calculated future value to fetch the next instruction. All of this happens on a single posedge. After this posedge, if the instruction that was executed caused the PC to be misaligned or attempted an unaligned memory access, the core would enter the HALT state. If not, the newly fetched instruction causes the state to become either FETCH_EXECUTE or EXECUTE and the cycle repeats again.
 
 Some instructions take two cycles. In this instance, the EXECUTE state sets control signals for the first cycle of the instruction, but does _not_ latch a new pc ahead of time or the next instruction. This is why JZJCoreF has a 2 "stageish" pipeline; a proper 2 stage pipeline would be able to fetch a new instruction already. Temporary registers are updated on the next posedge, and assuming there are no pc or memory alignment issues, the state then becomes FETCH_EXECUTE. Here, the second set of control signals for the instruction are set, latched into the appropriate places on the posedge, and this time, like normal, the next instruction is fetched ahead of time (on the posedge as well). Now, just like a regular transition from a FETCH_EXECUTE state, the next state is decided based on the decoded instruction.
 
@@ -86,7 +88,7 @@ Both regular fence and fence.i instructions are decoded as a nop in JZJCoreF. Ho
 
 ### Memory Architecture
 
-todo
+JZJCoreF uses a simple approach to multi-byte instruction accesses. The inferred SystemVerilog SRAM module that is used by the core has a 32 bit physical data width instead of an 8 bit width. While this slows down byte-wise accesses, which must read, then modify and write data to memory addresses, it speeds up read accesses and whole word writes significantly. Instead of spending 4 cycles reading each byte for an instruction fetch, the entire instruction can be fetched in a single cycle. JZJCoreF is able to provide these net benefits invisibly to RISC_V software it is executing.
 
 ## JZJCore EEI
 
