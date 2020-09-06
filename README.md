@@ -1,6 +1,6 @@
 # JZJCoreF
 
-A fast RV32IZifencei soft core implementation with a 2-stage pipeline, written in SystemVerilog!
+A fast RV32IZifencei soft core implementation with a 2 stage pipeline(ish), written in SystemVerilog!
 
 This is my sixth major single-cycle/2-stage RISC-V core revision that is a major rewrite from previous versions. Much of JZJCoreA through JZJCoreE shared code and were kind of just a way to avoid using version control properly. Not anymore.
 
@@ -88,7 +88,7 @@ Both regular fence and fence.i instructions are decoded as a nop in JZJCoreF. Ho
 
 ### Memory Architecture
 
-JZJCoreF uses a simple approach to multi-byte instruction accesses. The inferred SystemVerilog SRAM module that is used by the core has a 32 bit physical data width instead of an 8 bit width. While this slows down byte-wise accesses, which must read, then modify and write data to memory addresses, it speeds up read accesses and whole word writes significantly. Instead of spending 4 cycles reading each byte for an instruction fetch, the entire instruction can be fetched in a single cycle. JZJCoreF is able to provide these net benefits invisibly to RISC_V software it is executing.
+JZJCoreF uses a simple approach to multi-byte instruction accesses. The inferred SystemVerilog SRAM module that is used by the core has a 32 bit physical data width instead of an 8 bit width. While this slows down byte-wise accesses, which must read, then modify and write data to memory addresses, it speeds up read accesses and whole word writes significantly. Instead of spending 4 cycles reading each byte for an instruction fetch, the entire instruction can be fetched in a single cycle. JZJCoreF is able to provide these net benefits invisibly to RISC-V software it is executing.
 
 ## JZJCore EEI
 
