@@ -1,7 +1,7 @@
 module InferredRAM
 #(
-	parameter INITIAL_MEM_CONTENTS = "initialRam.mem",
-	parameter RAM_A_WIDTH = 12
+	parameter INITIAL_MEM_CONTENTS,
+	parameter RAM_A_WIDTH
 )
 (
 	input clock,

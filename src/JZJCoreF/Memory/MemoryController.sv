@@ -1,19 +1,9 @@
 import JZJCoreFTypes::*;
 
-import EndiannessFunctions::toBigEndian32;
-import EndiannessFunctions::toLittleEndian32;
-import EndiannessFunctions::toBigEndian16;
-import EndiannessFunctions::toLittleEndian16;
-
-import BitExtensionFunctions::signExtend16To32;
-import BitExtensionFunctions::signExtend8To32;
-import BitExtensionFunctions::zeroExtend16To32;
-import BitExtensionFunctions::zeroExtend8To32;
-
 module MemoryController
 #(
-	parameter INITIAL_MEM_CONTENTS = "initialRam.mem",
-	parameter RAM_A_WIDTH = 12
+	parameter INITIAL_MEM_CONTENTS,
+	parameter RAM_A_WIDTH
 )
 (
 	input logic clock, reset,
@@ -122,6 +112,44 @@ end
 
 /* Modules */
 
-MemoryMappedIO memoryMappedIO(.*);
+MemoryMappedIO memoryMappedIO(.*);//Upper half of memory is dedicated to MMIO
+
+RAMWrapper #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) ramWrapper(.*);//Lower half of memory is dedicated to RAM
 
 endmodule: MemoryController
+
+import EndiannessFunctions::toBigEndian32;
+import EndiannessFunctions::toLittleEndian32;
+import EndiannessFunctions::toBigEndian16;
+import EndiannessFunctions::toLittleEndian16;
+
+import BitExtensionFunctions::signExtend16To32;
+import BitExtensionFunctions::signExtend8To32;
+import BitExtensionFunctions::zeroExtend16To32;
+import BitExtensionFunctions::zeroExtend8To32;
+
+module RAMWrapper
+(
+	//Data Addressing
+	input logic [29:0] backendAddress,
+	input logic [1:0] offset,
+	
+	//Data IO
+	input WriteEnable_t ramWriteEnable,
+	input logic [31:0] rs2,
+	output logic [31:0] ramDataOut,//Big endian
+	
+	//Instruction Fetching
+	input logic [29:0] backendInstructionAddress,
+	output logic [31:0] instructionLittleEndian
+);
+parameter INITIAL_MEM_CONTENTS;
+parameter RAM_A_WIDTH;
+
+/*
+InferredRAM #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) inferredRam
+				 (.*, .writeAddress(backendAddress), .dataIn(backendDataIn), .writeEnable(logic'(ramWriteEnable)), .readAddressA(backendAddress), .dataOutA(ramDataOut),
+				 .readAddressB(backendInstructionAddress), .dataOutB(instructionLittleEndian));
+*/
+
+endmodule: RAMWrapper
