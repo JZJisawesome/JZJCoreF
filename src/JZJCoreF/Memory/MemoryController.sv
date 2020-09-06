@@ -33,14 +33,13 @@ module MemoryController
 	//Memory Mapped Ports
 	//mmioInputs [7:0] and mmioOutputs [7:0] are at byte-wise memory addresses [FFFFFFE0:FFFFFFFC] (each are 4 bytes (1 word) wide)
 	input logic [31:0] mmioInputs [8],
-	output reg [31:0] mmioOutputs [8]
+	output logic [31:0] mmioOutputs [8]
 );
 /* Primitives */
 WriteEnable_t backendWriteEnable;
 
 //Instruction Fetching
 logic [29:0] backendInstructionAddress;
-logic [31:0] instructionLittleEndian;
 
 //Data Addressing
 logic [31:0] addressToAccess;
@@ -56,7 +55,7 @@ WriteEnable_t ramWriteEnable;
 logic [31:0] ramDataOut;//Big endian
 
 /* Instruction Fetching Logic */
-assign instruction = toBigEndian32(instructionLittleEndian);//Convert fetched instruction to big endian
+
 assign backendInstructionAddress = instructionAddressToAccess[31:2];//If the instruction offset is bad, the ProgramCounter will set its error flag so we don't worry about that here
 
 /* Data Addressing And Write Enable Logic */
@@ -117,39 +116,3 @@ MemoryMappedIO memoryMappedIO(.*);//Upper half of memory is dedicated to MMIO
 RAMWrapper #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) ramWrapper(.*);//Lower half of memory is dedicated to RAM
 
 endmodule: MemoryController
-
-import EndiannessFunctions::toBigEndian32;
-import EndiannessFunctions::toLittleEndian32;
-import EndiannessFunctions::toBigEndian16;
-import EndiannessFunctions::toLittleEndian16;
-
-import BitExtensionFunctions::signExtend16To32;
-import BitExtensionFunctions::signExtend8To32;
-import BitExtensionFunctions::zeroExtend16To32;
-import BitExtensionFunctions::zeroExtend8To32;
-
-module RAMWrapper
-(
-	//Data Addressing
-	input logic [29:0] backendAddress,
-	input logic [1:0] offset,
-	
-	//Data IO
-	input WriteEnable_t ramWriteEnable,
-	input logic [31:0] rs2,
-	output logic [31:0] ramDataOut,//Big endian
-	
-	//Instruction Fetching
-	input logic [29:0] backendInstructionAddress,
-	output logic [31:0] instructionLittleEndian
-);
-parameter INITIAL_MEM_CONTENTS;
-parameter RAM_A_WIDTH;
-
-/*
-InferredRAM #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) inferredRam
-				 (.*, .writeAddress(backendAddress), .dataIn(backendDataIn), .writeEnable(logic'(ramWriteEnable)), .readAddressA(backendAddress), .dataOutA(ramDataOut),
-				 .readAddressB(backendInstructionAddress), .dataOutB(instructionLittleEndian));
-*/
-
-endmodule: RAMWrapper

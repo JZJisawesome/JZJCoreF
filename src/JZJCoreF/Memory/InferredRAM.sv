@@ -4,19 +4,19 @@ module InferredRAM
 	parameter RAM_A_WIDTH
 )
 (
-	input clock,
+	input logic clock,
 	
 	//Write Port
-	input [A_MAX:0] writeAddress,
-	input [31:0] dataIn,
-	input writeEnable,
+	input logic [A_MAX:0] writeAddress,
+	input logic [31:0] dataIn,
+	input logic writeEnable,
 	
 	//Read Port A
-	input [A_MAX:0] readAddressA,
+	input logic [A_MAX:0] readAddressA,
 	output reg [31:0] dataOutA,
 	
 	//Read Port B
-	input [A_MAX:0] readAddressB,
+	input logic [A_MAX:0] readAddressB,
 	output reg [31:0] dataOutB
 );
 //Primitives

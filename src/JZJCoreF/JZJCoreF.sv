@@ -14,7 +14,7 @@ module JZJCoreF
 	//Reads from the address read from mmioInputs, writes write to mmioOutputs
 	//mmioInputs [7:0] and mmioOutputs [7:0] are at byte-wise memory addresses [FFFFFFE0:FFFFFFFC] (each are 4 bytes (1 word) wide)
 	input logic [31:0] mmioInputs [8],
-	output reg [31:0] mmioOutputs [8],
+	output logic [31:0] mmioOutputs [8],
 	//For tristate ports, an additional port's outputs can be designated as a direction register externally, which can be used by an external module to allow/disalow writing
 	//If feedback is desired, then inputs should be connected to their respective output register
 	//MAKE SURE INPUTS AND OUTPUTS ARE SYNCHRONIZED IF THEY ARE FROM/TO ANOTHER CLOCK DOMAIN

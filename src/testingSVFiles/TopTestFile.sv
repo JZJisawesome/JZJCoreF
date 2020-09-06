@@ -53,13 +53,13 @@ assign displayOutput = mmioOutputs[5][15:0];
 localparam FILE = "memFiles/fibbonaccimmio.mem";
 
 //Full speed
-JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest(.*);
+//JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest(.*);
 
 //Half speed
 //JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest(.*, .clock(clock25MHz));
 
 //Slow
-//JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest(.*, .clock(clock90Hz));
+JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest(.*, .clock(clock90Hz));
 
 //7 segment display output (in Verilog)
 multi7seg (.clock(clockPrescaler[17]), .data0(displayOutput[15:12]), .data1(displayOutput[11:8]), .data2(displayOutput[7:4]), .data3(displayOutput[3:0]), .segment(segment), .ground(digit));
