@@ -126,7 +126,6 @@ At power-on, the RAM addresses are loaded with the contents of the file INITIAL_
 ## Todo List
 
 - Seperate MMIO and InferredRAM within MemoryController  (perhaps multiplex MMIO inside RDInputChooser instead of in MemoryBackend)
-- Write Theories Of Operation in this readme
 - Test using a regular multiplexer inside RDInputChooser
 - Look into bypassing currentState with nextState or something to allow internal comb logic to update starting from the posedge instead of from the negedge (switch state on posedge and negedge, with INTERMEDIATE states or something that bypass things)
 - MORE PERFORMANCE!!!
