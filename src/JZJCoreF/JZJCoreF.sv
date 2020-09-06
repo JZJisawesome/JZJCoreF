@@ -2,9 +2,9 @@ import JZJCoreFTypes::*;
 
 module JZJCoreF
 #(
-	parameter INITIAL_MEM_CONTENTS = "initialRam.mem",//File containing initial ram contents (32 bit words); execution starts from address 0x00000000
-	parameter RAM_A_WIDTH = 12,//number of addresses for code/ram (not memory mapped io); 2^RAM_A_WIDTH words = 2^RAM_A_WIDTH * 4 bytes
-	parameter RESET_VECTOR = 32'h00000000//address for execution to begin at (must be within RAM)
+	parameter INITIAL_MEM_CONTENTS = "initialRam.mem",//File containing initial ram contents (32 bit words)
+	parameter RAM_A_WIDTH = 12,//Number of addresses for code/ram (not memory mapped io); 2^RAM_A_WIDTH words = 2^RAM_A_WIDTH * 4 bytes
+	parameter RESET_VECTOR = 32'h00000000//Address for execution to begin at (must be within RAM)
 )
 (
 	input logic clock, reset,
@@ -27,11 +27,10 @@ module JZJCoreF
 
 //RegisterFile
 DecodedAddresses_t decodedAddresses;
-//Reading
-logic [31:0] rs1, rs2;
-//Writing
-logic [31:0] rd;//If a module is not writing to rd, then control should set its output to '0 (yes I know I should be using a priority encoder but this is nicer readability wise; I have to test the performance at some point)
 WriteEnable_t rdWriteEnable;
+//Read and Write Ports
+logic [31:0] rs1, rs2;
+logic [31:0] rd;
 
 //MemoryController
 MemoryMode_t memoryMode;
@@ -41,6 +40,7 @@ logic [31:0] instruction;
 //InstructionDecoder
 Funct3_t funct3;
 Funct7_t funct7;
+//Immediates
 logic [31:0] immediateI;
 logic [31:0] immediateS;
 logic [31:0] immediateB;

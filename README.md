@@ -70,11 +70,19 @@ Store word instructions take only 1 cycle because they don't care about existing
 
 ### Execution Cycle
 
-todo
+JZJCoreF is a RV32IZifencei implementation that executes instructions using its 2 "stageish" pipeline. Most instruction are completed in effectively a single cycle by fetching a future instruction from memory concurently with the execution of another.
+
+The ControlLogic module contains a state machine, which, after power on or reset, is initialized with the INITIAL_FETCH state. This state simply configures the MemoryController and InstructionAddressMux to fetch the first instruction to execute (located at the RESET_VECTOR parameter address). This instruction is fetched on the first posedge after reset/power on, and latched in MemoryController's instruction out port. Before the following negative edge of the clock, the instruction is decoded and sent to the ControlLogic module. If the instruction can be completed in a single cycle, the state becomes FETCH_EXECUTE at the negedge; but if it takes two cycles the state becomes EXECUTE.
+
+If the instruction only takes one cycle, the FETCH_EXECUTE state then decodes the instruction starting from the negedge and sets control signals appropriatly. The result of the instruction is then latched into either the registers or memory at the next posedge. ControlLogic simultaneously sets the next pc address to be calculated and also latches this value into the pc at the next posedge. Concurently, the InstructionAddressMux is set to bypass the pc and use the calculated future value to fetch the next instruction. All of this happens on a single posedge. After this posedge, if the instruction that was executed caused the PC to be misaligned or attempted an unaligned memory access, the core would enter the HALT state. If not, the newly fetched instruction causes the state to become either FETCH_EXECUTE or EXECUTE and the cycle repeats again.
+
+Some instructions take two cycles. In this instance, the EXECUTE state sets control signals for the first cycle of the instruction, but does _not_ latch a new pc ahead of time or the next instruction. This is why JZJCoreF has a 2 "stageish" pipeline; a proper 2 stage pipeline would be able to fetch a new instruction already. Temporary registers are updated on the next posedge, and assuming there are no pc or memory alignment issues, the state then becomes FETCH_EXECUTE. Here, the second set of control signals for the instruction are set, latched into the appropriate places on the posedge, and this time, like normal, the next instruction is fetched ahead of time (on the posedge as well). Now, just like a regular transition from a FETCH_EXECUTE state, the next state is decided based on the decoded instruction.
+
+This cycle will repeat forever, or until either a misalignment exception or ECALL/EBREAK instruction is encountered. In that case, the core core will enter the HALT state; once there, the core will just busywait until the next reset.
 
 ### Instruction Fence (Zifencei: fence.i Instruction)
 
-todo
+Both regular fence and fence.i instructions are decoded as a nop in JZJCoreF. However, due to the inherent nature of the design, both of these instructions function as intended. If a memory address is modified right before it is executed, the JZJCoreF instruction fetch (which occurs at the same time as the modification) will fetch the old instruction instead of the new one. This is legal RISC-V behaviour. However, if an address is modified, a fence.i instruction is executed, then that modified address is executed, the instruction that is executed will be the new one because the fence.i nop effectively seperated the memory write and new instruction fetch by a posedge. So technically, fence.i does its job as required by RISC-V!
 
 ### Memory Architecture
 
@@ -112,3 +120,11 @@ At power-on, the RAM addresses are loaded with the contents of the file INITIAL_
 |0x0000FFFC to 0x0000FFFF|0x00003FFF|RAM End (Default for 12 bit RAM_A_WIDTH)|
 |0xFFFFFFE0 to 0xFFFFFFE3|0x3FFFFFF8|Memory Mapped IO Registers Start|
 |0xFFFFFFFC to 0xFFFFFFFF|0x3FFFFFFF|Memory Mapped IO Registers End|
+
+## Todo List
+
+- Seperate MMIO and InferredRAM within MemoryController  (perhaps multiplex MMIO inside RDInputChooser instead of in MemoryBackend)
+- Write Theories Of Operation in this readme
+- Test using a regular multiplexer inside RDInputChooser
+- Look into bypassing currentState with nextState or something to allow internal comb logic to update starting from the posedge instead of from the negedge (switch state on posedge and negedge, with INTERMEDIATE states or something that bypass things)
+- MORE PERFORMANCE!!!
