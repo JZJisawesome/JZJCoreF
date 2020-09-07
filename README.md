@@ -134,3 +134,4 @@ At power-on, the RAM addresses are loaded with the contents of the file INITIAL_
 - MORE PERFORMANCE!!!
 - Reduce area usage in ways that do not affect performance
 - Determine how to speed up enum encoding/decoding (perhaps one hot is better?)
+- Figure out how to do formal testing
