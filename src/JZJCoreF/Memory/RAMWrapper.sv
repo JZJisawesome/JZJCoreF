@@ -11,6 +11,10 @@ import BitExtensionFunctions::zeroExtend16To32;
 import BitExtensionFunctions::zeroExtend8To32;
 
 module RAMWrapper
+#(
+	parameter INITIAL_MEM_CONTENTS,
+	parameter int RAM_A_WIDTH
+)
 (
 	input logic clock, reset,
 
@@ -34,9 +38,6 @@ module RAMWrapper
 //in order to modify the existing data and write back to the address on a second posedge
 
 /* Primitives */
-parameter INITIAL_MEM_CONTENTS;
-parameter RAM_A_WIDTH;
-
 logic [31:0] instructionLittleEndian;
 
 logic [31:0] ramDataOutLittleEndian;

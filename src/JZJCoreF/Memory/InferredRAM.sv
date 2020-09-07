@@ -1,7 +1,7 @@
 module InferredRAM
 #(
 	parameter INITIAL_MEM_CONTENTS,
-	parameter RAM_A_WIDTH
+	parameter int RAM_A_WIDTH
 )
 (
 	input logic clock,
@@ -20,8 +20,8 @@ module InferredRAM
 	output reg [31:0] dataOutB
 );
 //Primitives
-localparam A_MAX = RAM_A_WIDTH - 1;
-localparam NUMBER_OF_ADDRESSES = 2 ** RAM_A_WIDTH;
+localparam int A_MAX = RAM_A_WIDTH - 1;
+localparam int NUMBER_OF_ADDRESSES = 2 ** RAM_A_WIDTH;
 
 reg [31:0] inferredRam [NUMBER_OF_ADDRESSES];
 

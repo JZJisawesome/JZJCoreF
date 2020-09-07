@@ -1,6 +1,6 @@
 module ProgramCounter
 #(
-	parameter RESET_VECTOR = 32'h00000000
+	parameter logic [31:0] RESET_VECTOR = 32'h00000000
 )
 (
 	input logic clock, reset,

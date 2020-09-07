@@ -2,7 +2,7 @@ import JZJCoreFTypes::DecodedAddresses_t;
 
 module RegisterFile
 #(
-	parameter RV32I
+	parameter bit RV32I
 )
 (
 	input logic clock, reset,
@@ -19,7 +19,7 @@ module RegisterFile
 	input WriteEnable_t rdWriteEnable
 );
 /* Primitives */
-localparam NUM_REGS = RV32I ? 32 : 16;
+localparam int NUM_REGS = RV32I ? 32 : 16;
 reg [31:0] registerFile [NUM_REGS:1];//x1 through x31
 
 //Read Port Multiplexing
@@ -37,7 +37,7 @@ always_ff @(posedge clock, posedge reset)
 begin
 	if (reset)
 	begin
-		for (genvar i = 1; i < NUM_REGS; ++i)//x0 does not need to be reset because it is not actually present
+		for (int i = 1; i < NUM_REGS; ++i)//x0 does not need to be reset because it is not actually present
 			registerFile[i] <= 32'h00000000;
 	end
 	else if (clock)
@@ -55,7 +55,7 @@ end
 /* Register File Initialization */
 initial
 begin
-	for (genvar i = 1; i < NUM_REGS; ++i)
+	for (int i = 1; i < NUM_REGS; ++i)
 		registerFile[i] = 32'h00000000;
 end
 

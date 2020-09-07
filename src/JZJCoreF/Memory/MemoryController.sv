@@ -3,7 +3,7 @@ import JZJCoreFTypes::*;
 module MemoryController
 #(
 	parameter INITIAL_MEM_CONTENTS,
-	parameter RAM_A_WIDTH
+	parameter int RAM_A_WIDTH
 )
 (
 	input logic clock, reset,
