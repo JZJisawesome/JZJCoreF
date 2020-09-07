@@ -65,7 +65,7 @@ always_comb
 begin
 	case (memoryMode)
 		LOAD: addressToAccess = rs1 + immediateI;
-		STORE_PRELOAD, STORE: addressToAccess = rs1 + immediateS;//STORE_PRELOAD loads data currently at the address of the read-modify-write sequence
+		STORE_PRELOAD, STORE: addressToAccess = rs1 + immediateS;//STORE_PRELOAD loads data at the same address as STore because of its role in the read-modify-write sequence
 		default: addressToAccess = 'x;//NOP or Invalid enum
 	endcase
 end
@@ -91,7 +91,7 @@ end
 
 /* Unaligned Access Detection */
 
-//TODO speed up
+//TODO speed up (try to)
 always_comb
 begin
 	unique case (memoryMode)

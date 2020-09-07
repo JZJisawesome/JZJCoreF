@@ -44,7 +44,7 @@ begin
 	begin
 		if (rdWriteEnable)
 		begin
-			if (RV32I)
+			if (RV32I)//todo ensure this is done at elaboration time (should be because it is a parameter even though it is not in a generate block)
 				registerFile[decodedAddresses.rdAddress] <= rd;
 			else//Only look at lower 4 bits of register address
 				registerFile[decodedAddresses.rdAddress[3:0]] <= rd;
@@ -63,7 +63,7 @@ end
 
 function automatic logic [31:0] getRegister(input [31:0] registerFile [NUM_REGS:1], input [4:0] address);
 begin
-	if (RV32I)
+	if (RV32I)//todo ensure this is done at elaboration time (should be because it is a parameter even though it is not in a generate block)
 	begin
 		unique case (address)//If I don't manually specify each register (eg. default: registerFile[address]), it creates 2 tiers of multiplexers and slows things down significantly
 			0: getRegister = 32'h00000000;//x0 is always 0

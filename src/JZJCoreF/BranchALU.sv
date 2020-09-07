@@ -20,6 +20,7 @@ module BranchALU
 	output logic [31:0] programCounterInput,
 	output logic [31:0] branchALUOutput
 );
+/* Primitives */
 logic [31:0] nextSeqentialPC;
 logic [31:0] nextJALPC;
 logic [31:0] nextJALRPC;
@@ -46,7 +47,6 @@ begin
 end
 
 /* PC Generation Logic */
-
 assign nextJALRPCIntermediateValue = rs1 + immediateI;
 
 assign nextSeqentialPC = pcOfInstruction + 4;
