@@ -98,7 +98,7 @@ All general purpose registers (x0 through x31) are initialized with 32'h00000000
 
 ### Hart Information and ISA Class
 
-JZJCoreF contains only a single, unprivileged RV32IZifencei hart.
+JZJCoreF contains only a single, unprivileged RV32IZifencei hart. However, it can also be configured as an unprivileged RV32EZifencei hart by setting the JZJCoreF SystemVerilog parameter to 16 instead of 32.
 
 ### Traps
 
@@ -128,5 +128,5 @@ At power-on, the RAM addresses are loaded with the contents of the file INITIAL_
 - Seperate MMIO and InferredRAM within MemoryController  (perhaps multiplex MMIO inside RDInputChooser instead of in MemoryBackend)
 - Write Theories Of Operation in this readme
 - Test using a regular multiplexer inside RDInputChooser
-- Look into bypassing currentState with nextState or something to allow internal comb logic to update starting from the posedge instead of from the negedge (switch state on posedge and negedge, with INTERMEDIATE states or something that bypass things)
+- Look into bypassing currentState with nextState or something to allow internal comb logic to update starting from the posedge instead of from the negedge (switch state on posedge and negedge, with INTERMEDIATE states or something that bypass things). * Future John here: After some analysis, the only things that update after the negedge are those driven from ControlLogic directly; rs1/rs2 and immediates are decoded immediatly after the posedge when the instruction is fetched however, so updating ControlLogic to output its signals sooner would be less useful as most of those signals are not on the critical path (but might still help with setting multiplexers inside of MemoryController faster (where the main system bottleneck is), so I'm not throwing this idea out yet)
 - MORE PERFORMANCE!!!

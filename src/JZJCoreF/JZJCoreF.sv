@@ -4,7 +4,8 @@ module JZJCoreF
 #(
 	parameter INITIAL_MEM_CONTENTS = "initialRam.mem",//File containing initial ram contents (32 bit words)
 	parameter RAM_A_WIDTH = 12,//Number of addresses for code/ram (not memory mapped io); 2^RAM_A_WIDTH words = 2^RAM_A_WIDTH * 4 bytes
-	parameter RESET_VECTOR = 32'h00000000//Address for execution to begin at (must be within RAM)
+	parameter RESET_VECTOR = 32'h00000000,//Address for execution to begin at (must be within RAM)
+	parameter NUMBER_OF_REGISTERS = 32//32 for a RV32IZifencei implementation, 16 for a RV32EZifencei implementation; anything else is not supported
 )
 (
 	input logic clock, reset,
@@ -79,7 +80,7 @@ ErrorFlag_t memoryUnalignedAccess;
 
 /* Modules */
 
-RegisterFile registerFile(.*);
+RegisterFile #(.NUMBER_OF_REGISTERS(NUMBER_OF_REGISTERS)) registerFile(.*);
 
 MemoryController #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) memoryController(.*);
 
