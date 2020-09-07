@@ -20,7 +20,7 @@ module RegisterFile
 );
 /* Primitives */
 localparam int NUM_REGS = RV32I ? 32 : 16;
-reg [31:0] registerFile [NUM_REGS:1];//x1 through x31
+reg [31:0] registerFile [NUM_REGS:1];//x1 through x31/x15
 
 //Read Port Multiplexing
 assign rs1 = getRegister(registerFile, decodedAddresses.rs1Address);
