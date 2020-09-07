@@ -128,7 +128,7 @@ At power-on, the RAM addresses are loaded with the contents of the file INITIAL_
 - Add a parameter for the number of MMIO ports
 - Word_t and similar typedefs perhaps? (could make code harder to read though)
 - Might be able to eliminate STORE_PRELOAD mode with two STORES: one to load old data while nuking it at the address, and one to restore the now modified data to the address. However, this may require true triple port RAM which is not supported by my fpga and would requiring a 100% sram overhead (would take up double the room for the same amount of ram)
-- Write Theories Of Operation in this readme
+- Seperate MMIO and InferredRAM within MemoryController  (perhaps multiplex MMIO inside RDInputChooser instead of in MemoryBackend)
 - Test using a regular multiplexer inside RDInputChooser
 - Look into bypassing currentState with nextState or something to allow internal comb logic to update starting from the posedge instead of from the negedge (switch state on posedge and negedge, with INTERMEDIATE states or something that bypass things). * Future John here: After some analysis, the only things that update after the negedge are those driven from ControlLogic directly; rs1/rs2 and immediates are decoded immediatly after the posedge when the instruction is fetched however, so updating ControlLogic to output its signals sooner would be less useful as most of those signals are not on the critical path (but might still help with setting multiplexers inside of MemoryController faster (where the main system bottleneck is), so I'm not throwing this idea out yet)
 - MORE PERFORMANCE!!!
