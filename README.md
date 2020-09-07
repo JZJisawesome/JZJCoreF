@@ -98,7 +98,7 @@ All general purpose registers (x0 through x31) are initialized with 32'h00000000
 
 ### Hart Information and ISA Class
 
-JZJCoreF contains only a single, unprivileged RV32IZifencei hart. However, it can also be configured as an unprivileged RV32EZifencei hart by setting the JZJCoreF SystemVerilog parameter to 16 instead of 32.
+JZJCoreF contains only a single, unprivileged RV32IZifencei hart. However, it can also be configured as an unprivileged RV32EZifencei hart by setting the JZJCoreF SystemVerilog RV32I parameter to 0 instead of the default of 1.
 
 ### Traps
 

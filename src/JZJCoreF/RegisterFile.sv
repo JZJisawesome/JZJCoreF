@@ -2,7 +2,7 @@ import JZJCoreFTypes::DecodedAddresses_t;
 
 module RegisterFile
 #(
-	parameter NUMBER_OF_REGISTERS
+	parameter RV32I
 )
 (
 	input logic clock, reset,
@@ -19,47 +19,52 @@ module RegisterFile
 	input WriteEnable_t rdWriteEnable
 );
 /* Primitives */
-
-reg [31:0] registerFile [NUMBER_OF_REGISTERS:1];//x1 through x31
+localparam NUM_REGS = RV32I ? 32 : 16;
+reg [31:0] registerFile [NUM_REGS:1];//x1 through x31
 
 //Read Port Multiplexing
 assign rs1 = getRegister(registerFile, decodedAddresses.rs1Address);
 assign rs2 = getRegister(registerFile, decodedAddresses.rs2Address);
 
-generate if (NUMBER_OF_REGISTERS == 32)//RV32I
+generate if (RV32I)
 	assign register31Output = registerFile[31];
-else if (NUMBER_OF_REGISTERS == 16)//x31 does not exist in RV32E
-	assign register31Output = 32'hxxxxxxxx;
+else//RV32E: x31 does not exist, so output x15 instead
+	assign register31Output = registerFile[15];
 endgenerate
 
-/* Write Interface Logic */
+/* Writing Logic */
 always_ff @(posedge clock, posedge reset)
 begin
 	if (reset)
 	begin
-		for (int i = 1; i < NUMBER_OF_REGISTERS; ++i)//x0 does not need to be reset because it is not actually present
+		for (genvar i = 1; i < NUM_REGS; ++i)//x0 does not need to be reset because it is not actually present
 			registerFile[i] <= 32'h00000000;
 	end
 	else if (clock)
 	begin
 		if (rdWriteEnable)
-			registerFile[decodedAddresses.rdAddress] <= rd;
+		begin
+			if (RV32I)
+				registerFile[decodedAddresses.rdAddress] <= rd;
+			else//Only look at lower 4 bits of register address
+				registerFile[decodedAddresses.rdAddress[3:0]] <= rd;
+		end
 	end
 end
 
 /* Register File Initialization */
 initial
 begin
-	for (int i = 1; i < NUMBER_OF_REGISTERS; ++i)
+	for (genvar i = 1; i < NUM_REGS; ++i)
 		registerFile[i] = 32'h00000000;
 end
 
 /* Read Multiplexer Function */
 
-function automatic logic [31:0] getRegister(input [31:0] registerFile [NUMBER_OF_REGISTERS:1], input [4:0] address);
+function automatic logic [31:0] getRegister(input [31:0] registerFile [NUM_REGS:1], input [4:0] address);
 begin
-	if (NUMBER_OF_REGISTERS == 32)//Elaboration-time check
-	begin//RV32I
+	if (RV32I)
+	begin
 		unique case (address)//If I don't manually specify each register (eg. default: registerFile[address]), it creates 2 tiers of multiplexers and slows things down significantly
 			0: getRegister = 32'h00000000;//x0 is always 0
 			1: getRegister = registerFile[1];
@@ -95,9 +100,9 @@ begin
 			31: getRegister = registerFile[31];
 		endcase
 	end
-	else if (NUMBER_OF_REGISTERS == 16)//Elaboration-time check
-	begin//RV32E
-	unique case (address)//If I don't manually specify each register (eg. default: registerFile[address]), it creates 2 tiers of multiplexers and slows things down significantly
+	else//RV32E
+	begin
+	unique case (address[3:0])//If I don't manually specify each register (eg. default: registerFile[address]), it creates 2 tiers of multiplexers and slows things down significantly
 			0: getRegister = 32'h00000000;//x0 is always 0
 			1: getRegister = registerFile[1];
 			2: getRegister = registerFile[2];
@@ -114,7 +119,6 @@ begin
 			13: getRegister = registerFile[13];
 			14: getRegister = registerFile[14];
 			15: getRegister = registerFile[15];
-			default: getRegister = 'x;//Invalid register field for RV32E
 		endcase
 	end
 end
