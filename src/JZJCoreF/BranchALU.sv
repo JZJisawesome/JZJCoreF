@@ -60,8 +60,8 @@ begin
 	unique case (funct3)
 		3'b000: branchTaken = rs1 == rs2;//beq
 		3'b001: branchTaken = rs1 != rs2;//bne
-		3'b100: branchTaken = $signed(rs1) < $signed(rs2);//blt
-		3'b101: branchTaken = $signed(rs1) >= $signed(rs2);//bge
+		3'b100: branchTaken = signed'(rs1) < signed'(rs2);//blt
+		3'b101: branchTaken = signed'(rs1) >= signed'(rs2);//bge
 		3'b110: branchTaken = rs1 < rs2;//bltu
 		3'b111: branchTaken = rs1 >= rs2;//bgeu
 		default: branchTaken = 1'bx;//Invalid funct3

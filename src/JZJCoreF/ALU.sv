@@ -39,10 +39,10 @@ begin
 			endcase
 		end
 		3'b001: aluOutput = rs1 << secondOperand[4:0];//sll/slli
-		3'b010: aluOutput = ($signed(rs1) < $signed(secondOperand)) ? 32'h00000001 : 32'h00000000;//slt/slti
+		3'b010: aluOutput = (signed'(rs1) < signed'(secondOperand)) ? 32'h00000001 : 32'h00000000;//slt/slti
 		3'b011: aluOutput = (rs1 < secondOperand) ? 32'h00000001 : 32'h00000000;//sltu/sltiu
 		3'b100: aluOutput = rs1 ^ secondOperand;//xor/xori
-		3'b101: aluOutput = funct7[5] ? rs1 >>> secondOperand[4:0] : rs1 >> secondOperand[4:0];//srl/sra/srli/srai
+		3'b101: aluOutput = funct7[5] ? unsigned'(signed'(rs1) >>> secondOperand[4:0]) : (rs1 >> secondOperand[4:0]);//srl/sra/srli/srai
 		3'b110: aluOutput = rs1 | secondOperand;//or/ori
 		3'b111: aluOutput = rs1 & secondOperand;//and/andi
 	endcase
