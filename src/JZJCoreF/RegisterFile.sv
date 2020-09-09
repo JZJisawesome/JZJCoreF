@@ -20,7 +20,8 @@ module RegisterFile
 );
 /* Primitives */
 localparam int NUM_REGS = RV32I ? 32 : 16;
-reg [31:0] registerFile [NUM_REGS:1];//x1 through x31/x15
+localparam int NUM_REGS_MAX = NUM_REGS - 1;
+reg [31:0] registerFile [NUM_REGS_MAX:1];//x1 through x31/x15
 
 //Read Port Multiplexing
 assign rs1 = getRegister(registerFile, decodedAddresses.rs1Address);
@@ -61,7 +62,7 @@ end
 
 /* Read Multiplexer Function */
 
-function automatic logic [31:0] getRegister(input [31:0] registerFile [NUM_REGS:1], input [4:0] address);
+function automatic logic [31:0] getRegister(input [31:0] registerFile [NUM_REGS_MAX:1], input [4:0] address);
 begin
 	if (RV32I)//todo ensure this is done at elaboration time (should be because it is a parameter even though it is not in a generate block)
 	begin
