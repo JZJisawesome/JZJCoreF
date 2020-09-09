@@ -39,10 +39,13 @@ begin
 end
 
 //Memory Initialization
-localparam NUM_ADDR_8 = NUM_ADDR * 4;
-localparam NUM_ADDR_MAX_8 = NUM_ADDR_8 - 1;
-reg [7:0] inferredRam8 [NUM_ADDR_MAX_8:0];//Should by synthesized away
-reg [7:0] image_8[NUM_ADDR_MAX_8:0];
+initial $readmemh(INITIAL_MEM_CONTENTS, inferredRam);
+
+//Old Memory Initialization Code
+//localparam NUM_ADDR_8 = NUM_ADDR * 4;
+//localparam NUM_ADDR_MAX_8 = NUM_ADDR_8 - 1;
+//reg [7:0] inferredRam8 [NUM_ADDR_MAX_8:0];//Should by synthesized away
+//reg [7:0] image_8[NUM_ADDR_MAX_8:0];
 initial
 begin
 	//Old way, using the buggy formatVerilog program to make 8 bit verilog hex files into 32 bit
@@ -98,8 +101,9 @@ begin
 	//Did you know that objcopy has a --verilog-data-width parameter?
 	//It Does. Isn't. That. Wonderful.
 	//So yep, after all this time, the solution was this:
-	$readmemh(INITIAL_MEM_CONTENTS, inferredRam);
+	//$readmemh(INITIAL_MEM_CONTENTS, inferredRam);
 	//The f**ing same thing it was originally, with a single added --verilog-data-width=4 parameter to riscv64-unknown-elf-objcopy
+	//I'm putting this into a seperate initial statement
 end
 
 endmodule 
