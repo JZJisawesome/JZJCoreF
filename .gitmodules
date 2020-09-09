@@ -1,0 +1,3 @@
+[submodule "jzjcoresoftware"]
+	path = jzjcoresoftware
+	url = https://gitlab.com/jzjcore/jzjcoresoftware

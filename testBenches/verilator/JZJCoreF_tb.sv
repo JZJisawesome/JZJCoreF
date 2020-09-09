@@ -13,7 +13,7 @@ logic [31:0] mmioOutputs [8];
 
 assign mmioInputs = mmioOutputs;//Feedback for mmio
 
-JZJCoreF #(.INITIAL_MEM_CONTENTS("../../src/memFiles/temptest.bin")) coreTest (.*, .reset(1'b0));
+JZJCoreF #(.INITIAL_MEM_CONTENTS("../../jzjcoresoftware/precompiled/c/multest.hex")) coreTest (.*, .reset(1'b0));
 
 //Toggling the clock internally works with Iverilog, but not with verilator
 /*

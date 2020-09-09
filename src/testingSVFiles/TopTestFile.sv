@@ -50,7 +50,7 @@ assign displayOutput = mmioOutputs[5][15:0];
 //assign displayOutput = register31Output;
 
 //The core
-localparam FILE = "memFiles/temptest.bin";
+localparam FILE = "../jzjcoresoftware/precompiled/c/multest.hex";
 
 //Full speed
 //JZJCoreF #(.INITIAL_MEM_CONTENTS(FILE)) coreTest(.*);
