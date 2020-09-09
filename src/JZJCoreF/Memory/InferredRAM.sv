@@ -84,6 +84,22 @@ begin
 		//inferredRam[i] = ({24'b0, image_8[i*4]} << 24) | ({24'b0, image_8[i*4 + 1]} << 16) | ({24'b0, image_8[i*4 + 2]} << 8) | (image_8[i*4 + 3]);
 	end
 	*/
+	
+	//Guess What? "system function "$fopen" is not supported for synthesis"
+	//I am literally going to die now
+	//int memFile;
+	//memFile = $fopen(INITIAL_MEM_CONTENTS, "rb");
+	//$fread(inferredRam, memFile);
+	
+	/* The Solution */
+	
+	//After literally spending hours trying to find a solution to convert byte verilog hex files to word output from objcopy without having to use my buggy
+	//formatverilog.cpp program, I've finally found the solution.
+	//Did you know that objcopy has a --verilog-data-width parameter?
+	//It Does. Isn't. That. Wonderful.
+	//So yep, after all this time, the solution was this:
+	$readmemh(INITIAL_MEM_CONTENTS, inferredRam);
+	//The f**ing same thing it was originally, with a single added --verilog-data-width=4 parameter to riscv64-unknown-elf-objcopy
 end
 
 endmodule 
