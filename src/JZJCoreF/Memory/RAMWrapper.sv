@@ -22,7 +22,7 @@ module RAMWrapper
 	input logic [2:0] funct3,
 
 	//Data Addressing
-	input logic [17:0] backendAddress,
+	input logic [PHYS_MAX:0] backendAddress,
 	input logic [1:0] offset,
 	
 	//Data IO
@@ -31,13 +31,18 @@ module RAMWrapper
 	output logic [31:0] ramDataOut,//Big endian
 	
 	//Instruction Fetching
-	input logic [16:0] backendInstructionAddress,
+	input logic [PHYS_RAM_MAX:0] backendInstructionAddress,
 	output logic [31:0] instruction
 );
 //Note: For a store that is not a whole word, the backendAddress must be set to the location of the store for a posedge
 //in order to modify the existing data and write back to the address on a second posedge
 
 /* Primitives */
+//Physical addressing width "hugs" around the ram address width
+localparam PHYSICAL_WIDTH = RAM_A_WIDTH + 1;//1 bit extra for mmio/ram switching + the size of ram
+localparam PHYS_RAM_MAX = RAM_A_WIDTH - 1;
+localparam PHYS_MAX = PHYSICAL_WIDTH - 1;
+
 logic [31:0] instructionLittleEndian;
 
 logic [31:0] ramDataOutLittleEndian;
@@ -122,7 +127,7 @@ endfunction
 
 /* The actual RAM */
 InferredRAM #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) inferredRam
-				 (.*, .writeAddress(backendAddress), .dataIn(ramDataIn), .writeEnable(logic'(ramWriteEnable)), .readAddressA(backendAddress), .dataOutA(ramDataOutLittleEndian),
+				 (.*, .writeAddress(backendAddress[PHYS_RAM_MAX:0]), .dataIn(ramDataIn), .writeEnable(logic'(ramWriteEnable)), .readAddressA(backendAddress[PHYS_RAM_MAX:0]), .dataOutA(ramDataOutLittleEndian),
 				 .readAddressB(backendInstructionAddress), .dataOutB(instructionLittleEndian));
 
 endmodule: RAMWrapper

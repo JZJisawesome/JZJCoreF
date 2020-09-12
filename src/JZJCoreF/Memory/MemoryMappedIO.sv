@@ -1,11 +1,14 @@
 import JZJCoreFTypes::*;
 
 module MemoryMappedIO
+#(
+	parameter int RAM_A_WIDTH
+)
 (
 	input logic clock, reset,
 	
 	//MemoryBackend Interface
-	input logic [17:0] backendAddress,
+	input logic [PHYS_MAX:0] backendAddress,
 	output logic [31:0] mmioDataOut,
 	input logic [31:0] rs2,//Data to write from instruction
 	input WriteEnable_t mmioWriteEnable,
@@ -15,9 +18,14 @@ module MemoryMappedIO
 	input logic [31:0] mmioInputs [8],
 	output reg [31:0] mmioOutputs [8]
 );
+//Physical Addressing Parameters
+//Physical addressing width "hugs" around the ram address width
+localparam PHYSICAL_WIDTH = RAM_A_WIDTH + 1;//1 bit extra for mmio/ram switching + the size of ram
+localparam PHYS_MAX = PHYSICAL_WIDTH - 1;
+
 //Port Addressing
 logic [2:0] portNumber;
-assign portNumber = backendAddress[2:0];
+assign portNumber = backendAddress[2:0];//We only care about the low 3 bits
 
 //Read Logic
 assign mmioDataOut = mmioInputs[portNumber];
