@@ -22,7 +22,7 @@ module RAMWrapper
 	input logic [2:0] funct3,
 
 	//Data Addressing
-	input logic [29:0] backendAddress,
+	input logic [17:0] backendAddress,
 	input logic [1:0] offset,
 	
 	//Data IO
@@ -31,7 +31,7 @@ module RAMWrapper
 	output logic [31:0] ramDataOut,//Big endian
 	
 	//Instruction Fetching
-	input logic [29:0] backendInstructionAddress,
+	input logic [16:0] backendInstructionAddress,
 	output logic [31:0] instruction
 );
 //Note: For a store that is not a whole word, the backendAddress must be set to the location of the store for a posedge

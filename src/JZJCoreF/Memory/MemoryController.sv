@@ -39,11 +39,11 @@ module MemoryController
 WriteEnable_t backendWriteEnable;
 
 //Instruction Fetching
-logic [29:0] backendInstructionAddress;
+logic [16:0] backendInstructionAddress;
 
 //Data Addressing
-logic [31:0] addressToAccess;
-logic [29:0] backendAddress;
+logic [19:0] addressToAccess;
+logic [17:0] backendAddress;//18 bit physical addressing
 logic [1:0] offset;
 
 //Memory Mapped IO Data Connections
@@ -56,7 +56,7 @@ logic [31:0] ramDataOut;//Big endian
 
 /* Instruction Fetching Logic */
 
-assign backendInstructionAddress = instructionAddressToAccess[31:2];//If the instruction offset is bad, the ProgramCounter will set its error flag so we don't worry about that here
+assign backendInstructionAddress = instructionAddressToAccess[18:2];//If the instruction offset is bad, the ProgramCounter will set its error flag so we don't worry about that here
 
 /* Data Addressing And Write Enable Logic */
 
@@ -71,21 +71,21 @@ begin
 end
 
 //Split up addressToAccess into backendAddress and byte offset
-assign backendAddress = addressToAccess[31:2];//High 30 bits
+assign backendAddress = addressToAccess[19:2];//High 30 bits
 assign offset = addressToAccess[1:0];//Low 2 bits
 
 //Write enable logic
 assign backendWriteEnable = WriteEnable_t'(memoryMode == STORE);//We only ever write to memory for a store operation
-assign mmioWriteEnable = WriteEnable_t'(backendWriteEnable & backendAddress[29]);//Upper half of memory is dedicated to MMIO
-assign ramWriteEnable = WriteEnable_t'(backendWriteEnable & ~backendAddress[29]);//Lower half of memory is dedicated to RAM
+assign mmioWriteEnable = WriteEnable_t'(backendWriteEnable & backendAddress[17]);//Upper half of physical memory is dedicated to MMIO
+assign ramWriteEnable = WriteEnable_t'(backendWriteEnable & ~backendAddress[17]);//Lower half of physical memory is dedicated to RAM
 
 /* Output Multiplexer */
 
 always_comb
 begin
-	if (backendAddress[29])//Upper half of memory is dedicated to MMIO
+	if (backendAddress[17])//Upper half of physical memory is dedicated to MMIO
 		memoryOutput = mmioDataOut;
-	else//Lower half of memory is dedicated to RAM
+	else//Lower half of physical memory is dedicated to RAM
 		memoryOutput = ramDataOut;
 end
 

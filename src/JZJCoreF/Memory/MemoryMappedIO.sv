@@ -5,7 +5,7 @@ module MemoryMappedIO
 	input logic clock, reset,
 	
 	//MemoryBackend Interface
-	input logic [29:0] backendAddress,
+	input logic [17:0] backendAddress,
 	output logic [31:0] mmioDataOut,
 	input logic [31:0] rs2,//Data to write from instruction
 	input WriteEnable_t mmioWriteEnable,
