@@ -35,6 +35,15 @@ module MemoryController
 	input logic [31:0] mmioInputs [8],
 	output logic [31:0] mmioOutputs [8]
 );
+/* Logical to Physical Addressing
+ * xxxx xxxx xxxx xxxx xMaa aaaa aaaA AAOO (default for 12 bit RAM_A_WIDTH)
+ * M = MMIO/RAM switching (1 = mmio, 0 = ram)
+ * a = Actual backend address to mmio/ram (number of bits varies based on RAM_A_WIDTH)
+ * A = Identical to A, just indicates which bits mmio cares about (may change in later cores)
+ * O = Offset for loads and stores; handled by RAMWrapper and ignored for instruction fetches/mmio
+ * x = Don't care
+*/
+
 /* Primitives */
 //Physical addressing width "hugs" around the ram address width
 localparam LOGICAL_RAM_WIDTH = RAM_A_WIDTH + 2;//2 bits for offset
