@@ -35,15 +35,33 @@ module MemoryController
 	input logic [31:0] mmioInputs [8],
 	output logic [31:0] mmioOutputs [8]
 );
+/* Logical to Physical Addressing
+ * xxxx xxxx xxxx xxxx xMaa aaaa aaaA AAOO (default for 12 bit RAM_A_WIDTH)
+ * M = MMIO/RAM switching (1 = mmio, 0 = ram)
+ * a = Actual backend address to mmio/ram (number of bits varies based on RAM_A_WIDTH)
+ * A = Identical to A, just indicates which bits mmio cares about (may change in later cores)
+ * O = Offset for loads and stores; handled by RAMWrapper and ignored for instruction fetches/mmio
+ * x = Don't care
+*/
+
 /* Primitives */
+//Physical addressing width "hugs" around the ram address width
+localparam LOGICAL_RAM_WIDTH = RAM_A_WIDTH + 2;//2 bits for offset
+localparam LOGICAL_WIDTH = RAM_A_WIDTH + 3;//2 bits for offset + 1 bit for mmio/ram switching + the size of ram
+localparam PHYSICAL_WIDTH = RAM_A_WIDTH + 1;//1 bit extra for mmio/ram switching + the size of ram
+localparam LOGI_RAM_MAX = LOGICAL_RAM_WIDTH - 1;
+localparam LOGI_MAX = LOGICAL_WIDTH - 1;
+localparam PHYS_RAM_MAX = RAM_A_WIDTH - 1;
+localparam PHYS_MAX = PHYSICAL_WIDTH - 1;
+
 WriteEnable_t backendWriteEnable;
 
 //Instruction Fetching
-logic [29:0] backendInstructionAddress;
+logic [PHYS_RAM_MAX:0] backendInstructionAddress;
 
 //Data Addressing
-logic [31:0] addressToAccess;
-logic [29:0] backendAddress;
+logic [LOGI_MAX:0] addressToAccess;
+logic [PHYS_MAX:0] backendAddress;
 logic [1:0] offset;
 
 //Memory Mapped IO Data Connections
@@ -56,36 +74,37 @@ logic [31:0] ramDataOut;//Big endian
 
 /* Instruction Fetching Logic */
 
-assign backendInstructionAddress = instructionAddressToAccess[31:2];//If the instruction offset is bad, the ProgramCounter will set its error flag so we don't worry about that here
+//Note this is just LOGI_RAM_MAX because we only fetch from ram and so ignore the mmio bit
+assign backendInstructionAddress = instructionAddressToAccess[LOGI_RAM_MAX:2];//If the instruction offset is bad, the ProgramCounter will set its error flag so we don't worry about that here
 
 /* Data Addressing And Write Enable Logic */
 
-//Determine byte-wise address from the instruction
+//Determine byte-wise address from the instruction (we only calculate the part of the logical address we need to increase speed)
 always_comb
 begin
 	case (memoryMode)
-		LOAD: addressToAccess = rs1 + immediateI;
-		STORE_PRELOAD, STORE: addressToAccess = rs1 + immediateS;//STORE_PRELOAD loads data at the same address as STore because of its role in the read-modify-write sequence
+		LOAD: addressToAccess = rs1[LOGI_MAX:0] + immediateI[LOGI_MAX:0];
+		STORE_PRELOAD, STORE: addressToAccess = rs1[LOGI_MAX:0] + immediateS[LOGI_MAX:0];//STORE_PRELOAD loads data at the same address as STore because of its role in the read-modify-write sequence
 		default: addressToAccess = 'x;//NOP or Invalid enum
 	endcase
 end
 
 //Split up addressToAccess into backendAddress and byte offset
-assign backendAddress = addressToAccess[31:2];//High 30 bits
+assign backendAddress = addressToAccess[LOGI_MAX:2];//High bits
 assign offset = addressToAccess[1:0];//Low 2 bits
 
 //Write enable logic
 assign backendWriteEnable = WriteEnable_t'(memoryMode == STORE);//We only ever write to memory for a store operation
-assign mmioWriteEnable = WriteEnable_t'(backendWriteEnable & backendAddress[29]);//Upper half of memory is dedicated to MMIO
-assign ramWriteEnable = WriteEnable_t'(backendWriteEnable & ~backendAddress[29]);//Lower half of memory is dedicated to RAM
+assign mmioWriteEnable = WriteEnable_t'(backendWriteEnable & backendAddress[PHYS_MAX]);//Upper half of physical memory is dedicated to MMIO
+assign ramWriteEnable = WriteEnable_t'(backendWriteEnable & ~backendAddress[PHYS_MAX]);//Lower half of physical memory is dedicated to RAM
 
 /* Output Multiplexer */
 
 always_comb
 begin
-	if (backendAddress[29])//Upper half of memory is dedicated to MMIO
+	if (backendAddress[PHYS_MAX])//Upper half of physical memory is dedicated to MMIO
 		memoryOutput = mmioDataOut;
-	else//Lower half of memory is dedicated to RAM
+	else//Lower half of physical memory is dedicated to RAM
 		memoryOutput = ramDataOut;
 end
 
@@ -111,7 +130,7 @@ end
 
 /* Modules */
 
-MemoryMappedIO memoryMappedIO(.*);//Upper half of memory is dedicated to MMIO
+MemoryMappedIO #(.RAM_A_WIDTH(RAM_A_WIDTH)) memoryMappedIO(.*);//Upper half of memory is dedicated to MMIO
 
 RAMWrapper #(.INITIAL_MEM_CONTENTS(INITIAL_MEM_CONTENTS), .RAM_A_WIDTH(RAM_A_WIDTH)) ramWrapper(.*);//Lower half of memory is dedicated to RAM
 
